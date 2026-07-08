@@ -1,0 +1,26 @@
+Scene 1 — Trigger a Pipeline Run 
+Open the Streamlit dashboard → Trigger Pipeline page.
+
+Drag in a CSV file with transaction data
+Click Upload & Run Pipeline
+Point out that this S3 PutObject event automatically fires the Lambda trigger → Step Functions starts
+
+
+================================================
+Scene 2 — AWS Step Functions 
+Switch to the AWS Console → Step Functions and show the execution graph live.
+
+Highlight the Ingest → Transform → Predict state machine
+Show it paused at the Ingest human gate (waitForTaskToken pattern) — this is the key architectural detail to call out: "the pipeline literally pauses and waits for a human to approve before proceeding"
+Scene 3 — Approve the Human Gate (30 sec)
+Back in the dashboard → Pending Reviews page.
+
+Show the run card with the validation errors or low-confidence predictions listed
+Click Approve — Step Functions resumes in real time
+If you can time it, flip back to the console to show the execution advancing to the next state
+Scene 4 — View Predictions (30 sec)
+Dashboard → Run History page.
+
+Show the metrics row (total rows, fraud flagged, low-confidence count)
+Select the completed run from the dropdown → drill into the predictions table
+Scroll to show the fraud_probability and confidence columns sorted descending

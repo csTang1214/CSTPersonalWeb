@@ -1,0 +1,26 @@
+Video showcases tools across multiple categories and rag 
+
+The video starts of with the prompt: 'Give me an image of a monkey'
+
+agent replies with an image of a monkey 'Here is your image'. The reason i started the video with this prompt and the reply is because i wanted to show the image generation feature but it would take a while making the demo too long.
+
+Then i type 'How is my battery right now?'
+
+agent reply: 'Your battery is at 76% and it is not currently charging.' Which is accurate 
+
+I then show by calendar, empty on the 9th July (video recorded on the 8th July).
+
+I went back to the app and type: 'I have a family dinner at 7pm tomorrow, add that  to the calendar.'
+
+the agent reply: 'You family dinner is scheduled for tomorrow at 7:00 PM'
+
+I then show the calendar again, with an event named exactly like the prompt: 'I have a family dinner at 7pm tomorrow, add that  to the calendar.'
+
+i go back to the app and type 'According to the coffee guide, what are the 3 variables that determine coffee flavor?' 
+
+I show the indexed coffee guide txt file and send the prompt
+
+The agent reply: 'The three variables that determine coffee flavor according to the guide are: roast level, bean origin, and brewing method.' Which is accurate according to the document
+
+Video ends
+

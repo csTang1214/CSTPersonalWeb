@@ -1,0 +1,20 @@
+Video starts
+
+shows clinic policy page, highlighting the clinic's address
+
+i go to the chatbot page, prompted 'What is your address'.
+
+The chatbot replies with the correct address.
+
+I go to the account page and show the appointments on my account (one up coming appointment)
+
+I go back to the chatbot page, prompted 'I would like to cancel my appointment' and then go through the cancelling process
+
+Go back to the account page showing the appointment is now cancelled.
+
+I go back to the chatbot page, prompted 'I would like to book an appointment' and go through the booking process
+
+Go to the account page, showing the new appointment
+
+Video ends
+

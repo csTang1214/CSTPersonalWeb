@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chung Sum Tang — AI Engineer &amp; Developer</title>
+  <meta name="description" content="CS student and AI Engineer based in London. Building production-grade AI systems, mobile apps, and games.">
+  <meta property="og:title" content="Chung Sum Tang — AI Engineer &amp; Developer">
+  <meta property="og:description" content="CS student and AI Engineer based in London. SentinelFlow · ClinicCS · MAIA · Game Developer.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Navigation ─────────────────────────────────────────────── -->
+  <nav class="nav" id="nav">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">CST</a>
+      <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks" role="list">
+        <li><a href="#about"      class="nav-link">About</a></li>
+        <li><a href="#projects"   class="nav-link">Projects</a></li>
+        <li><a href="#building"   class="nav-link">Building</a></li>
+        <li><a href="#skills"     class="nav-link">Skills</a></li>
+        <li><a href="#experience" class="nav-link">Experience</a></li>
+        <li><a href="#contact"    class="nav-link">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <section id="hero" class="hero">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+      </div>
+      <div class="hero-content reveal">
+        <p class="hero-greeting">Hi, I'm</p>
+        <h1 class="hero-name">Chung Sum Tang</h1>
+        <div class="hero-roles">
+          <span>AI Engineer</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>Mobile Developer</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>Game Creator</span>
+        </div>
+        <p class="hero-tagline">
+          Building intelligent, user-focused systems that bridge<br>
+          <span class="gradient-text" id="typingText">games, AI, and real-world impact</span>
+        </p>
+        <div class="hero-ctas">
+          <a href="#projects" class="btn btn-primary">View Projects</a>
+          <a href="#contact"  class="btn btn-secondary">Get In Touch</a>
+        </div>
+        <div class="hero-meta">
+          <span class="hero-meta-item">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            London, UK
+          </span>
+          <span class="hero-meta-item">
+            <span class="status-dot" aria-hidden="true"></span>
+            Open to opportunities &amp; volunteering
+          </span>
+        </div>
+      </div>
+      <a href="#about" class="scroll-hint" aria-label="Scroll to about">
+        <div class="scroll-hint-mouse">
+          <div class="scroll-hint-wheel"></div>
+        </div>
+      </a>
+    </section>
+
+    <!-- ── About ──────────────────────────────────────────────────── -->
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-label reveal">About Me</div>
+        <h2 class="section-title reveal">Developer, tinkerer, and lifelong learner</h2>
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <p>
+              I'm a Computer Science student (graduating 2026) with a passion for building intelligent,
+              user-focused systems. My journey began with game development — I've published
+              <strong>two 2D mobile platformer games</strong> on the Google Play Store with <strong>1,000+ downloads each</strong>,
+              which taught me the discipline of shipping polished products and iterating on user feedback.
+            </p>
+            <p>
+              That foundation evolved into a deep interest in <strong>Artificial Intelligence and Machine Learning</strong>.
+              I've since designed and shipped several production-grade AI projects spanning MLOps pipelines,
+              conversational AI, and fully on-device mobile inference.
+            </p>
+            <p>
+              I'm preparing for the <strong>AWS Certified Developer – Associate</strong> certification and plan to
+              explore Reinforcement Learning — starting with adaptive boss AI in games and portfolio trading agents.
+              I'm particularly interested in roles at the intersection of AI Engineering, MLOps, Mobile AI, and Game AI.
+            </p>
+          </div>
+          <div class="about-stats reveal">
+            <div class="stat-card">
+              <span class="stat-number gradient-text">3+</span>
+              <span class="stat-label">Production AI Projects</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">2</span>
+              <span class="stat-label">Published Mobile Games</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">2K+</span>
+              <span class="stat-label">App Downloads</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">AWS</span>
+              <span class="stat-label">Cloud Deployed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Projects ───────────────────────────────────────────────── -->
+    <section id="projects" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Projects</div>
+        <h2 class="section-title reveal">Production-grade AI systems</h2>
+        <p class="section-subtitle reveal">Each project is fully deployed and demonstrates real engineering trade-offs.</p>
+
+        <div class="projects-grid">
+
+          <!-- SentinelFlow -->
+          <article class="project-card reveal">
+            <div class="project-card-header" style="--accent-color: #7c3aed;">
+              <div class="project-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <span class="project-status status-live">Live on AWS</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">SentinelFlow</h3>
+              <p class="project-subtitle">Event-Driven MLOps Pipeline with Human-in-the-Loop Governance</p>
+              <p class="project-desc">
+                An AWS-native ML pipeline that automates data ingestion, transformation, and fraud prediction —
+                with built-in <strong>human review gates</strong> using Step Functions' waitForTaskToken pattern.
+                The pipeline literally pauses and waits for human approval before continuing, mirroring real-world
+                MLOps governance. Features a Streamlit dashboard for approvals and a FastAPI inference endpoint.
+              </p>
+              <div class="tech-tags">
+                <span class="tag tag-aws">AWS Step Functions</span>
+                <span class="tag tag-aws">Lambda</span>
+                <span class="tag tag-aws">S3 / DynamoDB / SNS</span>
+                <span class="tag tag-python">Python</span>
+                <span class="tag tag-python">scikit-learn</span>
+                <span class="tag tag-python">dbt</span>
+                <span class="tag tag-python">FastAPI</span>
+                <span class="tag tag-python">Streamlit</span>
+                <span class="tag tag-devops">CloudFormation</span>
+                <span class="tag tag-devops">GitHub Actions</span>
+              </div>
+              <div class="project-highlights">
+                <div class="highlight">
+                  <span class="highlight-icon">⚙️</span>
+                  <span>S3 event → Lambda → Step Functions orchestration</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🧑‍💼</span>
+                  <span>Wait-for-callback pattern pauses pipeline for human review</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">📊</span>
+                  <span>50k rows · 1,750 fraud flagged · 9 unit tests passing</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-card-footer">
+              <button class="btn btn-demo" onclick="openModal('DemoVideos/SenFlow/SenFlowDemo.mp4', 'SentinelFlow Demo', 'Walkthrough of the Streamlit dashboard, live Step Functions execution graph, human gate approval, and prediction drill-down.')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+                Watch Demo
+              </button>
+              <!-- <a href="https://github.com/YOUR_USERNAME/sentinelflow" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a> -->
+            </div>
+          </article>
+
+          <!-- ClinicCS -->
+          <article class="project-card reveal">
+            <div class="project-card-header" style="--accent-color: #0891b2;">
+              <div class="project-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <span class="project-status status-live">Deployed</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">ClinicCS</h3>
+              <p class="project-subtitle">Full-Stack Conversational AI Clinic Management System</p>
+              <p class="project-desc">
+                Patients interact with a chatbot to book, reschedule, and cancel appointments through
+                <strong>natural language</strong>. Powered by a two-model LLM architecture: a fast 8B classifier
+                routes intent, then a 70B model handles generation with RAG-backed clinic information.
+                Dynamic UI components (date pickers, slot pickers) inject inline into the chat thread.
+              </p>
+              <div class="tech-tags">
+                <span class="tag tag-frontend">React 19</span>
+                <span class="tag tag-frontend">TypeScript</span>
+                <span class="tag tag-frontend">TanStack Query</span>
+                <span class="tag tag-backend">Node.js / Express</span>
+                <span class="tag tag-ai">LangChain / LangGraph</span>
+                <span class="tag tag-ai">RAG + pgvector</span>
+                <span class="tag tag-ai">Groq API</span>
+                <span class="tag tag-backend">PostgreSQL</span>
+                <span class="tag tag-backend">Redis</span>
+                <span class="tag tag-devops">Vercel + Render</span>
+              </div>
+              <div class="project-highlights">
+                <div class="highlight">
+                  <span class="highlight-icon">🤖</span>
+                  <span>Two-model architecture: 8B classifier + 70B generator</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🔒</span>
+                  <span>JWT auth, bcrypt (12 rounds), Helmet, rate limiting</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🔄</span>
+                  <span>Three-layer fallback chain for graceful degradation</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-card-footer">
+              <button class="btn btn-demo" onclick="openModal('DemoVideos/ClinicCS/ClinicCSDemo.mp4', 'ClinicCS Demo', 'Shows RAG-powered address lookup, appointment cancellation flow, and new appointment booking — all through conversational chat.')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+                Watch Demo
+              </button>
+              <!-- <a href="https://github.com/YOUR_USERNAME/cliniccs" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a> -->
+            </div>
+          </article>
+
+          <!-- MAIA -->
+          <article class="project-card reveal">
+            <div class="project-card-header" style="--accent-color: #059669;">
+              <div class="project-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+              <span class="project-status status-testing">Internal Testing</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">MAIA</h3>
+              <p class="project-subtitle">Fully On-Device Mobile AI Assistant for Android</p>
+              <p class="project-desc">
+                Every feature — LLM inference, speech recognition, document search, OCR, and image generation —
+                runs <strong>100% locally</strong> on the device. No user data is ever sent to a server.
+                Supports 9 on-device models (135M–4B params), voice interaction with auto-resume listening,
+                and a TF-IDF document vault for personal knowledge retrieval.
+              </p>
+              <div class="tech-tags">
+                <span class="tag tag-mobile">React Native (Expo)</span>
+                <span class="tag tag-mobile">TypeScript</span>
+                <span class="tag tag-ai">ExecuTorch</span>
+                <span class="tag tag-ai">Stable Diffusion</span>
+                <span class="tag tag-ai">TF-IDF / BM25</span>
+                <span class="tag tag-ai">ML Kit OCR</span>
+                <span class="tag tag-mobile">SQLite</span>
+                <span class="tag tag-mobile">Expo Speech</span>
+              </div>
+              <div class="project-highlights">
+                <div class="highlight">
+                  <span class="highlight-icon">🔇</span>
+                  <span>9 on-device models — zero server calls, full privacy</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🗣️</span>
+                  <span>Voice mode: STT → agent loop → TTS with auto-resume</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">📚</span>
+                  <span>Document vault with TF-IDF semantic search across PDFs</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-card-footer">
+              <button class="btn btn-demo" onclick="openModal('DemoVideos/MAIA/MAIADemo.mp4', 'MAIA Demo', 'Demonstrates image generation, battery check, calendar event creation, and document Q&A — all running fully on-device.')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+                Watch Demo
+              </button>
+              <!-- <a href="https://github.com/YOUR_USERNAME/maia" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a> -->
+            </div>
+          </article>
+
+          <!-- Mobile Games -->
+          <article class="project-card project-card-wide reveal">
+            <div class="project-card-header" style="--accent-color: #d97706;">
+              <div class="project-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01M8 12h.01M16 12h.01"/><path d="M6 9v6"/><path d="M18 9v6"/></svg>
+              </div>
+              <span class="project-status status-live">Live on Play Store</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">2D Mobile Platformer Games</h3>
+              <p class="project-subtitle">Two published Android games · 1,000+ downloads each</p>
+              <p class="project-desc">
+                My entry point into software development. Published two 2D mobile platformer games on the
+                Google Play Store, each reaching <strong>1,000+ downloads</strong>. Building and shipping real
+                products taught me the discipline of product design, user feedback iteration, and polished
+                delivery — skills that directly shaped my AI engineering work.
+              </p>
+              <div class="tech-tags">
+                <span class="tag tag-gamedev">Unity</span>
+                <span class="tag tag-gamedev">2D Platformer</span>
+                <span class="tag tag-mobile">Android</span>
+                <span class="tag tag-mobile">Google Play Store</span>
+              </div>
+            </div>
+            <div class="project-card-footer">
+              <a href="#" class="btn btn-secondary" aria-label="Play Store link coming soon" onclick="return false;">
+                🎮 Play Store Link Coming Soon
+              </a>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Currently Building ──────────────────────────────────────── -->
+    <section id="building" class="section">
+      <div class="container">
+        <div class="section-label reveal">Currently Building</div>
+        <h2 class="section-title reveal">My most ambitious project yet</h2>
+
+        <div class="building-card reveal">
+          <div class="building-badge">🚧 In Development</div>
+          <div class="building-inner">
+            <div class="building-text">
+              <h3 class="building-title">Offline AI Companion Game</h3>
+              <p class="building-subtitle">Unity · On-Device LLM · 2D Animations · Relationship System</p>
+              <p class="building-desc">
+                A fully offline AI companion game built in Unity where the player interacts with a
+                customisable character driven by an on-device language model. Combining my two biggest
+                passions — <strong>AI engineering and game development</strong>.
+              </p>
+              <div class="building-features">
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Character customisation</strong> — appearance and personality traits fed directly into the system prompt to shape how the character speaks</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>2D animations</strong> — blinking, speaking, and dynamic facial expressions</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Relationship progression</strong> — positive/negative emotions shift how the character communicates over time</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Multimodal pipeline</strong> — Whisper → LLM → emotional TTS → listen → repeat</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Fine-tuned LoRA</strong> — trained on synthetic data generated by two LLMs for better tone and formatting on small (&lt;1B) models</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot feature-dot-active"></span>
+                  <span><strong>Current challenge</strong> — achieving &lt;8 second response latency on budget Android devices (end-to-end: user speech → character reply)</span>
+                </div>
+              </div>
+            </div>
+            <div class="building-stack">
+              <h4>Tech Stack</h4>
+              <div class="tech-tags">
+                <span class="tag tag-gamedev">Unity</span>
+                <span class="tag tag-mobile">Android</span>
+                <span class="tag tag-ai">On-Device LLM (&lt;1B)</span>
+                <span class="tag tag-ai">LoRA Fine-tuning</span>
+                <span class="tag tag-ai">Whisper STT</span>
+                <span class="tag tag-ai">Emotional TTS</span>
+                <span class="tag tag-gamedev">2D Animation</span>
+              </div>
+              <div class="building-goals">
+                <h4>What's Next</h4>
+                <ul>
+                  <li>Solve &lt;8s latency on budget devices</li>
+                  <li>Play Store publication</li>
+                  <li>AWS Certified Developer – Associate</li>
+                  <li>Reinforcement Learning (adaptive game AI + trading agents)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Skills ─────────────────────────────────────────────────── -->
+    <section id="skills" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Skills</div>
+        <h2 class="section-title reveal">Technologies &amp; tools</h2>
+
+        <div class="skills-grid">
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">🤖</span> AI / ML
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-ai">LangChain</span>
+              <span class="tag tag-ai">LangGraph</span>
+              <span class="tag tag-ai">RAG</span>
+              <span class="tag tag-ai">pgvector</span>
+              <span class="tag tag-ai">scikit-learn</span>
+              <span class="tag tag-ai">ExecuTorch</span>
+              <span class="tag tag-ai">Stable Diffusion</span>
+              <span class="tag tag-ai">ML Kit OCR</span>
+              <span class="tag tag-ai">TF-IDF / BM25</span>
+              <span class="tag tag-ai">Prompt Engineering</span>
+              <span class="tag tag-ai">LoRA Fine-tuning</span>
+              <span class="tag tag-ai">Intent Classification</span>
+            </div>
+          </div>
+
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">☁️</span> MLOps / Cloud (AWS)
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-aws">Step Functions</span>
+              <span class="tag tag-aws">Lambda</span>
+              <span class="tag tag-aws">S3</span>
+              <span class="tag tag-aws">DynamoDB</span>
+              <span class="tag tag-aws">SNS</span>
+              <span class="tag tag-aws">CloudFormation</span>
+              <span class="tag tag-python">dbt Core</span>
+              <span class="tag tag-devops">GitHub Actions</span>
+              <span class="tag tag-devops">Docker</span>
+              <span class="tag tag-devops">Vercel</span>
+              <span class="tag tag-devops">Render</span>
+            </div>
+          </div>
+
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">⚙️</span> Backend
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-backend">Node.js</span>
+              <span class="tag tag-backend">Express</span>
+              <span class="tag tag-backend">FastAPI</span>
+              <span class="tag tag-backend">PostgreSQL</span>
+              <span class="tag tag-backend">Redis</span>
+              <span class="tag tag-backend">Python</span>
+              <span class="tag tag-backend">TypeScript</span>
+              <span class="tag tag-backend">JWT Auth</span>
+              <span class="tag tag-backend">REST APIs</span>
+            </div>
+          </div>
+
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">🖥️</span> Frontend
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-frontend">React</span>
+              <span class="tag tag-frontend">TypeScript</span>
+              <span class="tag tag-frontend">Vite</span>
+              <span class="tag tag-frontend">TanStack Query</span>
+              <span class="tag tag-frontend">CSS</span>
+            </div>
+          </div>
+
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">📱</span> Mobile
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-mobile">React Native</span>
+              <span class="tag tag-mobile">Expo</span>
+              <span class="tag tag-mobile">Android</span>
+              <span class="tag tag-mobile">SQLite</span>
+              <span class="tag tag-mobile">Play Store Publishing</span>
+            </div>
+          </div>
+
+          <div class="skill-group reveal">
+            <h3 class="skill-group-title">
+              <span class="skill-group-icon">🎮</span> Game Development
+            </h3>
+            <div class="tech-tags">
+              <span class="tag tag-gamedev">Unity</span>
+              <span class="tag tag-gamedev">2D Game Design</span>
+              <span class="tag tag-gamedev">Game AI</span>
+              <span class="tag tag-gamedev">Character Systems</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Experience ─────────────────────────────────────────────── -->
+    <section id="experience" class="section">
+      <div class="container">
+        <div class="section-label reveal">Experience &amp; Education</div>
+        <h2 class="section-title reveal">Background</h2>
+
+        <div class="timeline">
+
+          <div class="timeline-item reveal">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3 class="timeline-title">Shop Assistant</h3>
+                <span class="timeline-badge timeline-badge-current">Current</span>
+              </div>
+              <p class="timeline-company">Starry Mart · London</p>
+              <p class="timeline-date">September 2025 – Present</p>
+              <p class="timeline-desc">Supermarket retail operations.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item reveal">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3 class="timeline-title">Shop Assistant</h3>
+                <span class="timeline-badge timeline-badge-current">Current</span>
+              </div>
+              <p class="timeline-company">Seoul Plaza · London</p>
+              <p class="timeline-date">September 2025 – Present</p>
+              <p class="timeline-desc">Supermarket retail operations.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item reveal">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3 class="timeline-title">Retail Sales Assistant</h3>
+              </div>
+              <p class="timeline-company">Mamas &amp; Papas · London</p>
+              <p class="timeline-date">September 2023 – February 2024</p>
+              <p class="timeline-desc">Product merchandising, stock management, customer service, and till operation.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item reveal">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3 class="timeline-title">Kitchen Assistant</h3>
+                <span class="timeline-badge timeline-badge-current">Current</span>
+              </div>
+              <p class="timeline-company">App4Work · London</p>
+              <p class="timeline-date">May 2022 – Present</p>
+              <p class="timeline-desc">Back-of-house operations: food preparation, cleaning, and inventory management across restaurant placements.</p>
+            </div>
+          </div>
+
+          <div class="timeline-item timeline-item-edu reveal">
+            <div class="timeline-dot timeline-dot-edu"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3 class="timeline-title">BSc Computer Science</h3>
+                <span class="timeline-badge timeline-badge-edu">Education</span>
+              </div>
+              <p class="timeline-company">The Open University</p>
+              <p class="timeline-date">April 2023 – January 2027 (expected)</p>
+              <p class="timeline-desc">Part-time degree while working and shipping production AI projects.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Contact ─────────────────────────────────────────────────── -->
+    <section id="contact" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Contact</div>
+        <h2 class="section-title reveal">Let's work together</h2>
+        <p class="section-subtitle reveal">
+          I'm open to AI engineering roles, collaborations, and volunteering opportunities in London.
+        </p>
+
+        <div class="contact-grid">
+          <a href="mailto:chungsum.tang@gmail.com" class="contact-card reveal">
+            <div class="contact-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Email</span>
+              <span class="contact-value">chungsum.tang@gmail.com</span>
+            </div>
+            <svg class="contact-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
+          </a>
+
+          <a href="tel:+447882217620" class="contact-card reveal">
+            <div class="contact-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.58 4.93 2 2 0 0 1 3.55 2.73h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.08a16 16 0 0 0 6 6l1.41-1.41a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Phone</span>
+              <span class="contact-value">+44 7882 217620</span>
+            </div>
+            <svg class="contact-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
+          </a>
+
+          <div class="contact-card contact-card-static reveal">
+            <div class="contact-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="contact-info">
+              <span class="contact-label">Location</span>
+              <span class="contact-value">London, United Kingdom</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add your GitHub and LinkedIn links when ready -->
+        <!--
+        <div class="contact-socials reveal">
+          <a href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener" class="social-link">GitHub</a>
+          <a href="https://linkedin.com/in/YOUR_USERNAME" target="_blank" rel="noopener" class="social-link">LinkedIn</a>
+        </div>
+        -->
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        Chung Sum Tang &mdash; Built with HTML, CSS &amp; JavaScript &mdash; Hosted on GitHub Pages
+      </p>
+    </div>
+  </footer>
+
+  <!-- ── Video Modal ────────────────────────────────────────────── -->
+  <div id="videoModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container">
+      <button class="modal-close" id="modalClose" aria-label="Close video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <video id="modalVideo" class="modal-video" controls preload="metadata">
+        <source id="modalVideoSrc" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="modal-info">
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <p id="modalDesc" class="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
