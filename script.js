@@ -30,21 +30,23 @@ sections.forEach(s => sectionObserver.observe(s));
 const hamburger = document.getElementById('hamburger');
 const navMenu   = document.getElementById('navLinks');
 
-hamburger.addEventListener('click', () => {
-  const isOpen = hamburger.classList.toggle('open');
-  navMenu.classList.toggle('open', isOpen);
-  hamburger.setAttribute('aria-expanded', String(isOpen));
-  document.body.style.overflow = isOpen ? 'hidden' : '';
-});
-
-navMenu.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', () => {
-    hamburger.classList.remove('open');
-    navMenu.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
+if (hamburger && navMenu) {
+  hamburger.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    navMenu.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+    document.body.style.overflow = isOpen ? 'hidden' : '';
   });
-});
+
+  navMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      navMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  });
+}
 
 /* ── Scroll-reveal ────────────────────────────────────────────── */
 const revealObserver = new IntersectionObserver(
@@ -69,7 +71,7 @@ const typingEl = document.getElementById('typingText');
 const phrases  = [
   'games, AI, and real-world impact',
   'production ML pipelines on AWS',
-  'on-device AI for mobile',
+  'on-device AI companions and assistants',
   'conversational AI with real guardrails',
 ];
 let phraseIdx = 0;

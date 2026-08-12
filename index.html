@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chung Sum Tang — AI Engineer &amp; Developer</title>
-  <meta name="description" content="CS student and AI Engineer based in London. Building production-grade AI systems, mobile apps, and games.">
+  <meta name="description" content="CS student and AI Engineer based in London. Building production-grade AI systems, on-device mobile AI, and games.">
   <meta property="og:title" content="Chung Sum Tang — AI Engineer &amp; Developer">
-  <meta property="og:description" content="CS student and AI Engineer based in London. SentinelFlow · ClinicCS · MAIA · Game Developer.">
+  <meta property="og:description" content="CS student and AI Engineer based in London. SentinelFlow · ClinicCS · MAIA · Pocket Romance · Game Developer.">
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,7 @@
       <ul class="nav-links" id="navLinks" role="list">
         <li><a href="#about"      class="nav-link">About</a></li>
         <li><a href="#projects"   class="nav-link">Projects</a></li>
-        <li><a href="#building"   class="nav-link">Building</a></li>
+        <li><a href="#roadmap"    class="nav-link">Roadmap</a></li>
         <li><a href="#skills"     class="nav-link">Skills</a></li>
         <li><a href="#experience" class="nav-link">Experience</a></li>
         <li><a href="#contact"    class="nav-link">Contact</a></li>
@@ -97,6 +97,13 @@
               conversational AI, and fully on-device mobile inference.
             </p>
             <p>
+              My most recent project, <strong>Pocket Romance</strong> — an offline, on-device AI companion app —
+              started life as a Unity prototype before I rebuilt it in React Native for real on-device LLM and
+              voice performance. It's now in closed testing on Google Play, targeting a full release before
+              September 2026. Alongside it, I've been improving <strong>MAIA</strong>'s accessibility, adding a
+              genuinely hands-free voice mode for visually impaired users.
+            </p>
+            <p>
               I'm preparing for the <strong>AWS Certified Developer – Associate</strong> certification and plan to
               explore Reinforcement Learning — starting with adaptive boss AI in games and portfolio trading agents.
               I'm particularly interested in roles at the intersection of AI Engineering, MLOps, Mobile AI, and Game AI.
@@ -104,12 +111,12 @@
           </div>
           <div class="about-stats reveal">
             <div class="stat-card">
-              <span class="stat-number gradient-text">3+</span>
+              <span class="stat-number gradient-text">4+</span>
               <span class="stat-label">Production AI Projects</span>
             </div>
             <div class="stat-card">
               <span class="stat-number gradient-text">2</span>
-              <span class="stat-label">Published Mobile Games</span>
+              <span class="stat-label">On-Device AI Apps, Real Users</span>
             </div>
             <div class="stat-card">
               <span class="stat-number gradient-text">2K+</span>
@@ -253,7 +260,7 @@
               <div class="project-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               </div>
-              <span class="project-status status-testing">Internal Testing</span>
+              <span class="project-status status-testing">Google Play Testing</span>
             </div>
             <div class="project-card-body">
               <h3 class="project-title">MAIA</h3>
@@ -261,8 +268,8 @@
               <p class="project-desc">
                 Every feature — LLM inference, speech recognition, document search, OCR, and image generation —
                 runs <strong>100% locally</strong> on the device. No user data is ever sent to a server.
-                Supports 9 on-device models (135M–4B params), voice interaction with auto-resume listening,
-                and a TF-IDF document vault for personal knowledge retrieval.
+                Supports 9 on-device models (135M–4B params), a hands-free voice mode built for
+                <strong>accessibility</strong>, and a BM25 document vault for personal knowledge retrieval.
               </p>
               <div class="tech-tags">
                 <span class="tag tag-mobile">React Native (Expo)</span>
@@ -298,7 +305,62 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 Play Store
               </a>
-              <!-- <a href="https://github.com/YOUR_USERNAME/maia" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a> -->
+              <a href="maia.html" class="btn btn-ghost">
+                Learn More
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
+              </a>
+            </div>
+          </article>
+
+          <!-- Pocket Romance -->
+          <article class="project-card reveal">
+            <div class="project-card-header" style="--accent-color: #db2777;">
+              <div class="project-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <span class="project-status status-testing">Closed Testing</span>
+            </div>
+            <div class="project-card-body">
+              <h3 class="project-title">Pocket Romance</h3>
+              <p class="project-subtitle">Offline On-Device AI Companion for Android</p>
+              <p class="project-desc">
+                A fully offline AI companion app — customisable characters with persistent memory,
+                emotional voice, and 2D animation, all running <strong>100% on-device</strong>. Rebuilt from
+                a Unity prototype into React Native for real on-device LLM and voice performance. In closed
+                testing on Google Play, targeting release before September 2026.
+              </p>
+              <div class="tech-tags">
+                <span class="tag tag-mobile">React Native (Expo)</span>
+                <span class="tag tag-ai">llama.cpp</span>
+                <span class="tag tag-ai">Fine-tuned Qwen3.5-0.8B</span>
+                <span class="tag tag-ai">Piper TTS</span>
+                <span class="tag tag-ai">LoRA Fine-tuning</span>
+                <span class="tag tag-mobile">Android</span>
+              </div>
+              <div class="project-highlights">
+                <div class="highlight">
+                  <span class="highlight-icon">🎙️</span>
+                  <span>Streaming LLM → emotional TTS, overlapping decode and synthesis</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🧠</span>
+                  <span>Custom synthetic-data pipeline fine-tunes the on-device companion LLM</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🎚️</span>
+                  <span>User-configurable voice quality/speed trade-off, tuned per character</span>
+                </div>
+              </div>
+            </div>
+            <div class="project-card-footer">
+              <button class="btn btn-demo" onclick="openModal('DemoVideos/PocketRomance/PocketRomanceDemoVideo.mp4', 'Pocket Romance Demo', 'Recorded on a budget Redmi A5 for a worst-case demo of on-device performance — inference and voice are noticeably faster on mid-range and flagship phones.')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+                Watch Demo
+              </button>
+              <a href="pocket-romance.html" class="btn btn-ghost">
+                Learn More
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
+              </a>
             </div>
           </article>
 
@@ -337,72 +399,64 @@
       </div>
     </section>
 
-    <!-- ── Currently Building ──────────────────────────────────────── -->
-    <section id="building" class="section">
+    <!-- ── Roadmap ────────────────────────────────────────────────── -->
+    <section id="roadmap" class="section">
       <div class="container">
-        <div class="section-label reveal">Currently Building</div>
-        <h2 class="section-title reveal">My most ambitious project yet</h2>
+        <div class="section-label reveal">Roadmap</div>
+        <h2 class="section-title reveal">What's next for both shipped apps</h2>
+        <p class="section-subtitle reveal">Pocket Romance and MAIA both have real users now — the next phase is refinement, not prototyping.</p>
 
-        <div class="building-card reveal">
-          <div class="building-badge">🚧 In Development</div>
-          <div class="building-inner">
-            <div class="building-text">
-              <h3 class="building-title">Offline AI Companion Game</h3>
-              <p class="building-subtitle">Unity · On-Device LLM · 2D Animations · Relationship System</p>
-              <p class="building-desc">
-                A fully offline AI companion game built in Unity where the player interacts with a
-                customisable character driven by an on-device language model. Combining my two biggest
-                passions — <strong>AI engineering and game development</strong>.
-              </p>
+        <div class="roadmap-grid reveal">
+          <div class="building-card" style="--accent-color:#db2777;">
+            <div class="building-badge" style="background: rgba(219,39,119,0.12); color: #f472b6; border-color: rgba(219,39,119,0.2);">💗 Pocket Romance</div>
+            <div style="padding: 24px;">
               <div class="building-features">
                 <div class="feature-item">
                   <span class="feature-dot"></span>
-                  <span><strong>Character customisation</strong> — appearance and personality traits fed directly into the system prompt to shape how the character speaks</span>
+                  <span>Push <strong>Piper voice and LLM reply quality</strong> further without regressing response latency</span>
                 </div>
                 <div class="feature-item">
                   <span class="feature-dot"></span>
-                  <span><strong>2D animations</strong> — blinking, speaking, and dynamic facial expressions</span>
+                  <span>Add more <strong>character content</strong> — personalities, voices, relationship scenarios</span>
                 </div>
                 <div class="feature-item">
                   <span class="feature-dot"></span>
-                  <span><strong>Relationship progression</strong> — positive/negative emotions shift how the character communicates over time</span>
-                </div>
-                <div class="feature-item">
-                  <span class="feature-dot"></span>
-                  <span><strong>Multimodal pipeline</strong> — Whisper → LLM → emotional TTS → listen → repeat</span>
-                </div>
-                <div class="feature-item">
-                  <span class="feature-dot"></span>
-                  <span><strong>Fine-tuned LoRA</strong> — trained on synthetic data generated by two LLMs for better tone and formatting on small (&lt;1B) models</span>
+                  <span>Improve the <strong>RAG/memory pipeline</strong> — better recall without losing precision</span>
                 </div>
                 <div class="feature-item">
                   <span class="feature-dot feature-dot-active"></span>
-                  <span><strong>Current challenge</strong> — achieving &lt;8 second response latency on budget Android devices (end-to-end: user speech → character reply)</span>
+                  <span><strong>Full public release</strong> on Google Play, targeted before September 2026</span>
                 </div>
               </div>
             </div>
-            <div class="building-stack">
-              <h4>Tech Stack</h4>
-              <div class="tech-tags">
-                <span class="tag tag-gamedev">Unity</span>
-                <span class="tag tag-mobile">Android</span>
-                <span class="tag tag-ai">On-Device LLM (&lt;1B)</span>
-                <span class="tag tag-ai">LoRA Fine-tuning</span>
-                <span class="tag tag-ai">Whisper STT</span>
-                <span class="tag tag-ai">Emotional TTS</span>
-                <span class="tag tag-gamedev">2D Animation</span>
-              </div>
-              <div class="building-goals">
-                <h4>What's Next</h4>
-                <ul>
-                  <li>Solve &lt;8s latency on budget devices</li>
-                  <li>Play Store publication</li>
-                  <li>AWS Certified Developer – Associate</li>
-                  <li>Reinforcement Learning (adaptive game AI + trading agents)</li>
-                </ul>
+          </div>
+          <div class="building-card" style="--accent-color:#059669;">
+            <div class="building-badge" style="background: rgba(5,150,105,0.12); color: #34d399; border-color: rgba(5,150,105,0.2);">♿ MAIA</div>
+            <div style="padding: 24px;">
+              <div class="building-features">
+                <div class="feature-item">
+                  <span class="feature-dot feature-dot-active"></span>
+                  <span><strong>Survey the visually impaired community</strong> on how MAIA fits their daily workflow</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Tailor the app</strong> to that feedback, rather than assumptions</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span>Continue deepening <strong>accessibility</strong> — hands-free coverage and voice-first flows</span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="building-goals reveal" style="margin-top: 40px;">
+          <h4>Beyond These Two Apps</h4>
+          <ul>
+            <li>AWS Certified Developer – Associate</li>
+            <li>Reinforcement Learning (adaptive game AI + portfolio trading agents)</li>
+          </ul>
         </div>
       </div>
     </section>

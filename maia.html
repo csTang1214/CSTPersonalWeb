@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAIA — Fully On-Device Mobile AI Assistant | Chung Sum Tang</title>
+  <meta name="description" content="MAIA: a fully on-device AI assistant for Android built for accessibility. Architecture, design decisions, and trade-offs behind the agent, RAG vault, and voice systems.">
+  <meta property="og:title" content="MAIA — Fully On-Device Mobile AI Assistant">
+  <meta property="og:description" content="On-device LLM assistant with a hands-free voice mode, document vault, and OCR — built with real accessibility work for visually impaired users.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="--accent-color:#059669; --accent-glow:rgba(5,150,105,0.2);">
+
+  <!-- ── Navigation ─────────────────────────────────────────────── -->
+  <nav class="nav detail-nav" id="nav">
+    <div class="nav-container">
+      <a href="index.html#projects" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+        Back to portfolio
+      </a>
+      <a href="index.html" class="nav-logo">CST</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <section class="project-hero">
+      <div class="container">
+        <div class="project-hero-top reveal">
+          <div class="project-hero-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <span class="project-status status-testing">Google Play Testing · Real Users</span>
+        </div>
+        <h1 class="reveal">MAIA</h1>
+        <p class="project-hero-tagline reveal">
+          A fully on-device AI assistant for Android — LLM inference, speech recognition, document
+          search, OCR, and image generation all run locally, with no request ever leaving the phone.
+          Built with an agent/tool architecture that lets an on-device model reliably control the device,
+          and with a growing focus on <strong>accessibility</strong> — a genuinely hands-free voice mode
+          built for users who can't rely on the screen.
+        </p>
+        <div class="project-hero-ctas reveal">
+          <button class="btn btn-demo" onclick="openModal('DemoVideos/MAIA/MAIADemo.mp4', 'MAIA Demo', 'Demonstrates image generation, battery check, calendar event creation, and document Q&amp;A — all running fully on-device.')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            Watch Demo
+          </button>
+          <a href="https://play.google.com/store/apps/details?id=com.poon1214.MobileAIAssistant" class="btn btn-secondary" target="_blank" rel="noopener">Open on Play Store</a>
+          <a href="#architecture" class="btn btn-ghost">Read the Architecture</a>
+        </div>
+        <div class="project-hero-meta reveal">
+          <span class="tag tag-mobile">React Native (Expo)</span>
+          <span class="tag tag-ai">ExecuTorch</span>
+          <span class="tag tag-ai">9 On-Device Models</span>
+          <span class="tag tag-ai">BM25 / TF-IDF</span>
+          <span class="tag tag-ai">ML Kit OCR</span>
+          <span class="tag tag-mobile">100% On-Device</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Sub-nav ────────────────────────────────────────────────── -->
+    <nav class="subnav">
+      <div class="container subnav-inner">
+        <a href="#overview" class="subnav-link">Overview</a>
+        <a href="#architecture" class="subnav-link">Architecture</a>
+        <a href="#tradeoffs" class="subnav-link">Design &amp; Trade-offs</a>
+        <a href="#screenshots" class="subnav-link">Screenshots</a>
+        <a href="#roadmap" class="subnav-link">What's Next</a>
+      </div>
+    </nav>
+
+    <!-- ── Overview ───────────────────────────────────────────────── -->
+    <section id="overview" class="section">
+      <div class="container">
+        <div class="section-label reveal">Overview</div>
+        <h2 class="section-title reveal">An assistant that never phones home</h2>
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <p>
+              MAIA gives the user a choice of 9 on-device language models (135M–4B parameters), each
+              running fully locally via ExecuTorch, and wraps them in an <strong>agent system</strong> with
+              35 tools spanning calendar, alarms, contacts, device control, image generation, and a
+              document vault — all without a backend server or telemetry endpoint.
+            </p>
+            <p>
+              The app exposes three modes — <strong>Chat</strong> (direct, fastest), <strong>Agent</strong>
+              (full tool access, default), and <strong>Voice</strong> (hands-free speech → agent → speech) —
+              switchable by tapping or swiping the mode bar.
+            </p>
+            <p>
+              Recent work has focused specifically on <strong>accessibility</strong>: proper
+              <code>accessibilityLabel</code>s across every icon-only control, live-region announcements for
+              state changes in Voice mode, and a new set of app-navigation tools that let a user open the
+              guide, switch models, or start a new session by voice alone — so the whole app is operable
+              without seeing or touching the screen.
+            </p>
+          </div>
+          <div class="about-stats reveal">
+            <div class="stat-card">
+              <span class="stat-number gradient-text">35</span>
+              <span class="stat-label">Agent-callable tools</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">9</span>
+              <span class="stat-label">Selectable on-device models</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">3</span>
+              <span class="stat-label">Interaction modes</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">0</span>
+              <span class="stat-label">Servers — everything runs on-device</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Architecture ───────────────────────────────────────────── -->
+    <section id="architecture" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Architecture</div>
+        <h2 class="section-title reveal">Classify first, reason only when needed</h2>
+        <p class="section-subtitle reveal">
+          A small on-device model can't afford to reason its way through every request — MAIA front-loads
+          as much determinism as possible before ever calling the LLM.
+        </p>
+
+        <div class="pipeline reveal">
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">1. Classify</div>
+            <div class="pipeline-step-title">Keyword scorer</div>
+            <div class="pipeline-step-desc">Zero-cost category classification decides which tool sections belong in the prompt, keeping it short.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">2. Pre-classify</div>
+            <div class="pipeline-step-title">Deterministic bypass</div>
+            <div class="pipeline-step-desc">Regex/keyword matching resolves common intents directly to a tool call, skipping inference entirely.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">3. Agent loop</div>
+            <div class="pipeline-step-title">LLM + tools (max 5 turns)</div>
+            <div class="pipeline-step-desc">If nothing else fired, the model reasons, calls tools, and reads results back for up to 5 iterations.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">4. Format</div>
+            <div class="pipeline-step-title">Result → prose</div>
+            <div class="pipeline-step-desc">Raw tool JSON is converted to human-readable text before being fed back — small models hallucinate less from prose.</div>
+          </div>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🛠️</span> Agent system &amp; tools</h3>
+          <p>
+            <code>runAgentTurn()</code> is the entry point: intent classification picks relevant tool
+            sections, three flows (<code>send_message</code>, <code>delete_event</code>,
+            <code>delete_document</code>) are fully hardcoded two-step sequences with no LLM involved in tool
+            selection, and everything else falls through to a standard loop of generate → parse tool call →
+            execute → append result → repeat. Several tools — contact lookup, calendar listing, SMS reads —
+            skip the LLM for the <strong>final answer</strong> entirely and return pre-formatted data, to
+            eliminate hallucination risk on facts the code already has correct.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">📚</span> Document vault (RAG)</h3>
+          <p>
+            Documents are chunked on sentence boundaries (~500 tokens, 200-char overlap) and searched with
+            <strong>BM25</strong> over SQLite-stored term frequencies — not vector embeddings. An earlier
+            MobileBERT-based embedding path was built and abandoned after it OOM'd on-device; the current
+            schema (<code>user_version = 2</code>) replaced embedding columns with lexical term-frequency
+            data. <code>cross_reference</code> scores two topics independently per chunk and keeps only
+            chunks where both score above zero.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🎙️</span> Voice &amp; OCR</h3>
+          <p>
+            Voice mode runs STT → agent loop → TTS with auto-resume listening after the reply finishes, a
+            Skip button that interrupts speech and immediately re-listens, and side buttons for document
+            attach / OCR scan so a voice-only user never has to switch modes to reach those features. OCR
+            (ML Kit) results are routed through a structured-extraction prompt that adapts its output —
+            line items for a receipt, labelled fields for a business card, cleaned text otherwise.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">♿</span> Accessibility work</h3>
+          <p>
+            Every icon-only control across all four screens now carries a real
+            <code>accessibilityLabel</code>/<code>accessibilityRole</code> instead of reading silently to a
+            screen reader. The Voice-mode status text uses <code>accessibilityLiveRegion="polite"</code> so
+            state changes announce themselves. Ten new App Navigation &amp; Info tools put every menu action —
+            opening the guide, switching models, starting a new session — behind a spoken command, and all
+            ten bypass the LLM for both tool selection and the final answer, since navigating a screen has
+            exactly one correct outcome.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Trade-offs ─────────────────────────────────────────────── -->
+    <section id="tradeoffs" class="section">
+      <div class="container">
+        <div class="section-label reveal">Design Decisions</div>
+        <h2 class="section-title reveal">Trade-offs behind the system</h2>
+        <p class="section-subtitle reveal">
+          Small on-device models are fast and private but unreliable at multi-step reasoning — most of
+          these decisions trade some flexibility for determinism.
+        </p>
+
+        <div class="tradeoff-grid">
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Model speed vs. quality — exposed to the user</span>
+              <span class="tradeoff-tag">9 models, 135M–4B</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Rather than picking one model for everyone, MAIA ships a picker with star ratings for
+                  speed and quality per model, from a 135M SmolLM up to a 4B Phi-4 Mini, with a 1.2B LFM 2.5
+                  marked <strong>Recommended</strong> as the balance point. Device capability varies wildly
+                  across Android hardware, so the right trade-off is different for every user.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  Switching models forces a hard remount of the whole chat screen (keyed by model id) to
+                  guarantee no stale state survives the swap — simple and safe, but it means changing your
+                  mind mid-conversation costs your session context.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Deterministic bypasses vs. full LLM reasoning</span>
+              <span class="tradeoff-tag">Reliability</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  20+ common intents (battery check, flashlight, timers, calendar reads) resolve straight to
+                  a tool call via regex/keyword matching, and three multi-step flows are fully hardcoded
+                  sequences. Small on-device models are noticeably worse at chaining several tool calls
+                  correctly than a hosted frontier model would be, so the app just doesn't ask them to.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  Every bypass is a hand-written pattern rather than general intelligence — a request phrased
+                  unusually enough falls through to the slower, less reliable full agent loop instead of
+                  being caught early.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Lexical search (BM25) vs. semantic embeddings</span>
+              <span class="tradeoff-tag">Document vault</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  A MobileBERT-based embedding search was built first and abandoned — it OOM'd on real
+                  devices. BM25 over cached term frequencies is lightweight, predictable in memory use, and
+                  accurate enough for keyword-shaped queries against personal documents.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  Lexical search can't match a query to a passage that expresses the same idea in different
+                  words the way semantic search can — a real capability gap the vault currently accepts in
+                  exchange for not crashing on-device.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Sequential, not parallel, multimodal inference</span>
+              <span class="tradeoff-tag">Memory safety</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Before generating an image, the LLM is fully unloaded from RAM, and it's lazily reloaded on
+                  the next text message. Running Stable Diffusion and the chat model in memory at the same
+                  time is exactly the kind of thing that OOMs a budget Android device.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  The very next text message after an image pays a reload cost that a resident,
+                  always-loaded model wouldn't — a deliberate trade of a little latency for not crashing.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Screenshots ────────────────────────────────────────────── -->
+    <section id="screenshots" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Screenshots</div>
+        <h2 class="section-title reveal">Inside the app</h2>
+
+        <div class="screenshot-gallery">
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/MAIA/Guide1.png" alt="In-app guide showing alarms, location, and device control example commands"></div>
+            <p class="screenshot-caption">In-app Guide — spoken and visual tool examples</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/MAIA/Guide2.png" alt="In-app guide explaining the three interaction modes"></div>
+            <p class="screenshot-caption">The three modes — Chat, Agent, Voice</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/MAIA/Guide3.png" alt="In-app guide showing document vault, OCR, and app navigation tools"></div>
+            <p class="screenshot-caption">Document vault, OCR, and hands-free navigation</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/MAIA/OCRDemo.png" alt="Voice mode screen showing OCR results extracting a receipt total and business card details"></div>
+            <p class="screenshot-caption">OCR in Voice mode — receipt and business card extraction</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/MAIA/OCRImage.png" alt="Source photo used for the OCR demo, showing a receipt and business card"></div>
+            <p class="screenshot-caption">The source photo behind that OCR result</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Roadmap ────────────────────────────────────────────────── -->
+    <section id="roadmap" class="section">
+      <div class="container">
+        <div class="section-label reveal">What's Next</div>
+        <h2 class="section-title reveal">Built with, not just for</h2>
+        <div class="arch-block reveal">
+          <p>
+            The next phase of MAIA is less about new features and more about validating the accessibility
+            work directly with the people it's meant to serve.
+          </p>
+          <ul>
+            <li>Survey the visually impaired community on how MAIA fits (or doesn't) into their daily workflow</li>
+            <li>Tailor the app's design and feature priorities to that feedback, rather than assumptions</li>
+            <li>Continue deepening accessibility — hands-free coverage, screen-reader behavior, and voice-first flows</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        Chung Sum Tang &mdash; <a href="index.html" style="color:inherit;text-decoration:underline;">Back to portfolio</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ── Video Modal ────────────────────────────────────────────── -->
+  <div id="videoModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container">
+      <button class="modal-close" id="modalClose" aria-label="Close video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <video id="modalVideo" class="modal-video" controls preload="metadata">
+        <source id="modalVideoSrc" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="modal-info">
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <p id="modalDesc" class="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

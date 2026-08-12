@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pocket Romance — On-Device AI Companion | Chung Sum Tang</title>
+  <meta name="description" content="Pocket Romance: an offline, on-device AI companion app for Android. Architecture, design decisions, and trade-offs behind the local LLM, voice, and memory systems.">
+  <meta property="og:title" content="Pocket Romance — On-Device AI Companion">
+  <meta property="og:description" content="Offline Android AI companion — on-device LLM, emotional TTS, and long-term memory. Built with React Native + llama.cpp + Piper.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="--accent-color:#db2777; --accent-glow:rgba(219,39,119,0.2);">
+
+  <!-- ── Navigation ─────────────────────────────────────────────── -->
+  <nav class="nav detail-nav" id="nav">
+    <div class="nav-container">
+      <a href="index.html#projects" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+        Back to portfolio
+      </a>
+      <a href="index.html" class="nav-logo">CST</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <section class="project-hero">
+      <div class="container">
+        <div class="project-hero-top reveal">
+          <div class="project-hero-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <span class="project-status status-testing">Closed Testing · Google Play</span>
+        </div>
+        <h1 class="reveal">Pocket Romance</h1>
+        <p class="project-hero-tagline reveal">
+          An offline, on-device AI companion for Android — customisable characters with persistent
+          memory, emotional voice, and 2D animation, all running locally on the phone with no server backend.
+          Originally prototyped in Unity as a text-only concept; rebuilt from the ground up in React Native
+          once the design called for real on-device LLM + voice inference. Currently in closed testing on
+          Google Play, targeting a full public release before September 2026.
+        </p>
+        <div class="project-hero-ctas reveal">
+          <button class="btn btn-demo" onclick="openModal('DemoVideos/PocketRomance/PocketRomanceDemoVideo.mp4', 'Pocket Romance Demo', 'Recorded on a budget Redmi A5 for a worst-case demo of on-device performance — inference and voice are noticeably faster on mid-range and flagship phones.')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            Watch Demo
+          </button>
+          <a href="#architecture" class="btn btn-secondary">Read the Architecture</a>
+        </div>
+        <div class="project-hero-meta reveal">
+          <span class="tag tag-mobile">React Native (Expo)</span>
+          <span class="tag tag-ai">llama.cpp (llama.rn)</span>
+          <span class="tag tag-ai">Fine-tuned Qwen3.5-0.8B</span>
+          <span class="tag tag-ai">Piper TTS</span>
+          <span class="tag tag-ai">Moonshine STT</span>
+          <span class="tag tag-mobile">100% On-Device</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Sub-nav ────────────────────────────────────────────────── -->
+    <nav class="subnav">
+      <div class="container subnav-inner">
+        <a href="#overview" class="subnav-link">Overview</a>
+        <a href="#architecture" class="subnav-link">Architecture</a>
+        <a href="#tradeoffs" class="subnav-link">Design &amp; Trade-offs</a>
+        <a href="#screenshots" class="subnav-link">Screenshots</a>
+        <a href="#roadmap" class="subnav-link">What's Next</a>
+      </div>
+    </nav>
+
+    <!-- ── Overview ───────────────────────────────────────────────── -->
+    <section id="overview" class="section">
+      <div class="container">
+        <div class="section-label reveal">Overview</div>
+        <h2 class="section-title reveal">A companion that lives entirely on your phone</h2>
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <p>
+              Pocket Romance is a fully offline mobile game/app: the player creates a character
+              (appearance, personality, relationship style) and talks to them by voice. Everything —
+              speech-to-text, the language model generating replies, the emotional text-to-speech, and the
+              on-screen 2D character animation — runs locally after a one-time model download. There is no
+              server backend and no network dependency once the app is set up.
+            </p>
+            <p>
+              The core interaction loop is <strong>listen → transcribe → generate → speak → animate</strong>,
+              streamed end-to-end so the character starts speaking as soon as the first sentence of its reply
+              is ready, rather than waiting for the whole response. Replies carry a hidden emotion tag that
+              simultaneously drives the character's facial animation, the voice's emotional inflection, and a
+              relationship score that shifts how the character talks to the player over time.
+            </p>
+            <p>
+              The project ships with a fine-tuned small language model (via a custom synthetic-data
+              pipeline) and 12 emotion-specific TTS voices (trained per-emotion on top of Piper/VITS) —
+              both built as sibling projects that feed into the app rather than generic off-the-shelf models.
+            </p>
+          </div>
+          <div class="about-stats reveal">
+            <div class="stat-card">
+              <span class="stat-number gradient-text">0.8B</span>
+              <span class="stat-label">Fine-tuned LLM, fully on-device</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">12</span>
+              <span class="stat-label">Emotion-trained TTS voices</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">6</span>
+              <span class="stat-label">Character slots per player</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">3</span>
+              <span class="stat-label">Repos: app, dataset gen, voice training</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Architecture ───────────────────────────────────────────── -->
+    <section id="architecture" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Architecture</div>
+        <h2 class="section-title reveal">Listen → think → speak → animate, streamed</h2>
+        <p class="section-subtitle reveal">
+          Each turn overlaps decoding and synthesis instead of running the pipeline strictly in sequence,
+          which is what keeps response latency down on budget hardware.
+        </p>
+
+        <div class="pipeline reveal">
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">1. Listen</div>
+            <div class="pipeline-step-title">VAD + Mic</div>
+            <div class="pipeline-step-desc">Polling-based voice activity detection on a rolling window decides when the player has stopped talking.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">2. Transcribe</div>
+            <div class="pipeline-step-title">Moonshine STT</div>
+            <div class="pipeline-step-desc">Int8 on-device speech-to-text, chosen over Whisper for speed and no fixed 30s padding.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">3. Recall</div>
+            <div class="pipeline-step-title">Fact RAG lookup</div>
+            <div class="pipeline-step-desc">Keyword-matches the player's live transcript against stored long-term facts before generation.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">4. Generate</div>
+            <div class="pipeline-step-title">On-device LLM</div>
+            <div class="pipeline-step-desc">Fine-tuned Qwen3.5-0.8B via llama.cpp streams tokens sentence-by-sentence.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">5. Speak + Animate</div>
+            <div class="pipeline-step-title">Piper TTS</div>
+            <div class="pipeline-step-desc">Each completed sentence is synthesized and played as streaming PCM while the LLM keeps generating the next one; mouth-sync animates in parallel.</div>
+          </div>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧠</span> LLM subsystem</h3>
+          <p>
+            Inference runs through <code>llama.rn</code> (llama.cpp bindings) on CPU, running a
+            <strong>LoRA-fine-tuned Qwen3.5-0.8B</strong> GGUF model. The fine-tuning dataset is synthetic:
+            a separate pipeline uses a local Ollama model to play the user, the companion, and an
+            independent emotion-judge, generating thousands of tagged conversations through an
+            8-stage quality gate (format checks, tone matching, repetition and generic-filler detection,
+            then an LLM-as-judge pass as the final and most expensive check).
+          </p>
+          <p>
+            A sliding-window context strategy evicts the oldest turns once the conversation approaches the
+            model's context limit, and generation is capped and interrupted if it detects a degenerate
+            repeated-phrase loop — a documented failure mode on small models that can otherwise run away
+            and OOM the device.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🗣️</span> Voice pipeline (STT / VAD / TTS)</h3>
+          <p>
+            <strong>TTS</strong> is Piper (VITS) via <code>sherpa-onnx</code>, synthesized as
+            <strong>streaming PCM</strong> rather than batching a full reply — batch synthesis cost ~6
+            seconds just to marshal audio across the JS bridge for a single sentence, which streaming avoids
+            entirely. <strong>STT</strong> is Moonshine-tiny (int8), and <strong>VAD</strong> uses a
+            custom polling loop over a rolling window rather than the underlying library's documented
+            streaming API, which held a single-flight lock across the whole session and made turn-taking
+            unreliable.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">💾</span> Long-term memory &amp; RAG</h3>
+          <p>
+            Facts are extracted from the conversation at the end of a session (up to 2 per session), then
+            reduced to English keywords in a <strong>separate, later pass</strong> — deliberately split
+            into two stages after testing showed a single combined extraction prompt produced generic,
+            unusable keywords, and to avoid running two concurrent native LLM contexts at once. At runtime,
+            a fact is only injected into the prompt if it shares at least two keywords with what the player
+            just said, favoring precision over recall so the character doesn't reference the wrong memory.
+            Near-duplicate facts are filtered out with Jaccard bigram similarity before they're even stored.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🎭</span> Character rendering &amp; storage</h3>
+          <p>
+            Characters are layered 2D sprites (hair/outfit/head/eyes/mouth) composited and recolored live via
+            SVG tint filters rather than pre-baked art per color option. Mouth movement is split into
+            independently animated strips driven by <code>react-native-reanimated</code> worklets — plain
+            React Native <code>Animated</code> stalled under the JS-thread contention created by Piper's
+            chained synthesis promises. All game state (characters, facts, settings) is stored as plain
+            local JSON files rather than SQLite, matching the project's general preference for minimal
+            native dependencies.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Trade-offs ─────────────────────────────────────────────── -->
+    <section id="tradeoffs" class="section">
+      <div class="container">
+        <div class="section-label reveal">Design Decisions</div>
+        <h2 class="section-title reveal">Trade-offs behind the system</h2>
+        <p class="section-subtitle reveal">
+          Running everything on-device on budget Android hardware means almost every decision below is a
+          deliberate quality-vs-speed (or reliability-vs-flexibility) call, not a default.
+        </p>
+
+        <div class="tradeoff-grid">
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Piper voice quality vs. speed</span>
+              <span class="tradeoff-tag">User-configurable</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  The in-game <strong>Settings</strong> panel exposes the exact Piper synthesis parameters
+                  (speaking speed, pitch variation, voice clarity/noise scale, pause length) as sliders, saved
+                  <strong>per character</strong>. The shipped default sits at a balanced point — clear enough
+                  diction without sounding robotic, fast enough not to stall the reply — but higher clarity
+                  settings cost more synthesis time per sentence, and players on faster phones can push
+                  quality further while players who value snappier responses can trade some clarity for speed.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">Why not just pick one</div>
+                <p>
+                  A single fixed setting either sounds mediocre on flagship phones that could afford better
+                  quality, or feels laggy on budget devices. Sliders (not free-text fields) keep values inside
+                  ranges that have actually been tested, so players can tune to their device and taste without
+                  being able to produce a broken-sounding voice.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Small fine-tuned LLM vs. a bigger stock model</span>
+              <span class="tradeoff-tag">llama.cpp + LoRA</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Settled on a <strong>LoRA-fine-tuned Qwen3.5-0.8B</strong> after a long elimination round —
+                  several 0.5B–1.7B candidates either leaked <code>&lt;think&gt;</code> reasoning tags into
+                  the reply, hung on export bugs, segfaulted, or were simply too slow on-device. Moving off
+                  ExecuTorch's <code>.pte</code> path onto <code>llama.rn</code> (llama.cpp) fixed reliability
+                  across the board.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  A model this small isn't naturally good at staying in character or following the emotion-tag
+                  format — hence the custom synthetic dataset and multi-stage LoRA fine-tune, which is
+                  meaningfully more project overhead than calling a hosted API, in exchange for zero inference
+                  cost and full offline operation.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Streaming synthesis vs. batch TTS</span>
+              <span class="tradeoff-tag">Latency</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  The LLM's output is split into sentences as it streams, and each finished sentence is
+                  handed to Piper immediately, overlapping decode and synthesis instead of waiting for the
+                  full reply. <code>numThreads: 1</code> on the TTS engine keeps it from starving the STT/LLM
+                  threads it runs alongside.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  Batch synthesis of a full reply is simpler to reason about and avoids mid-reply audio
+                  glitches, but it measured at roughly 6 seconds of bridge-marshalling overhead for one
+                  sentence — an unacceptable delay before the character says anything at all.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Precision-first memory recall</span>
+              <span class="tradeoff-tag">RAG</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  A stored fact is only injected into the prompt when it shares at least two keywords with
+                  the player's live transcript. This keeps the character from confidently referencing the
+                  wrong memory in front of the player — a highly visible failure in a conversational
+                  character app.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  A stricter threshold means some genuinely relevant facts go unused if the player phrases
+                  things differently than they did originally — recall is deliberately sacrificed for
+                  precision, which is the axis the current roadmap's RAG improvements are aimed at.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Screenshots ────────────────────────────────────────────── -->
+    <section id="screenshots" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Screenshots</div>
+        <h2 class="section-title reveal">Inside the app</h2>
+        <p class="section-subtitle reveal">Captured on a Redmi A5 — a deliberately low-end device to demo worst-case performance.</p>
+
+        <div class="screenshot-gallery">
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/PocketRomance/RocketRomanceSelectCharacter.jpg" alt="Character select screen showing two created characters and empty slots"></div>
+            <p class="screenshot-caption">Character select — up to 6 slots per player</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/PocketRomance/PocketRomanceCreateCharacter.jpg" alt="Character creation screen with appearance customisation options"></div>
+            <p class="screenshot-caption">Character creation — appearance feeds the sprite compositor</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/PocketRomance/PocketRomanceRagScreenshot.png" alt="In-game chat showing a memory recall used in the character's reply"></div>
+            <p class="screenshot-caption">Live memory recall — "Memory used" tag shows RAG in action</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/PocketRomance/PocketRomanceEndGameFactExtraction.png" alt="End of session summary screen listing extracted facts and relationship score"></div>
+            <p class="screenshot-caption">Session summary — extracted facts and relationship progress</p>
+          </div>
+          <div class="screenshot-item reveal">
+            <div class="phone-frame"><img src="Screenshots/PocketRomance/PocketRomanceSettings.png" alt="Settings panel with sliders for speaking speed, pitch variation, voice clarity, and pause length"></div>
+            <p class="screenshot-caption">Voice tuning settings — the quality/speed trade-off, in the player's hands</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Roadmap ────────────────────────────────────────────────── -->
+    <section id="roadmap" class="section">
+      <div class="container">
+        <div class="section-label reveal">What's Next</div>
+        <h2 class="section-title reveal">Post-launch roadmap</h2>
+        <div class="arch-block reveal">
+          <ul>
+            <li>Push Piper voice and LLM reply quality further without regressing response latency on budget devices</li>
+            <li>Expand character content — more personalities, voices, and relationship scenarios</li>
+            <li>Improve the RAG/memory pipeline — better recall without sacrificing the precision the current design prioritizes</li>
+            <li>Full public Play Store release, targeted before September 2026</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        Chung Sum Tang &mdash; <a href="index.html" style="color:inherit;text-decoration:underline;">Back to portfolio</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ── Video Modal ────────────────────────────────────────────── -->
+  <div id="videoModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container">
+      <button class="modal-close" id="modalClose" aria-label="Close video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <video id="modalVideo" class="modal-video" controls preload="metadata">
+        <source id="modalVideoSrc" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="modal-info">
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <p id="modalDesc" class="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
