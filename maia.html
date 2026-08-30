@@ -57,6 +57,7 @@
           <span class="tag tag-mobile">React Native (Expo)</span>
           <span class="tag tag-ai">ExecuTorch</span>
           <span class="tag tag-ai">9 On-Device Models</span>
+          <span class="tag tag-ai">Auto Voice Mode</span>
           <span class="tag tag-ai">BM25 / TF-IDF</span>
           <span class="tag tag-ai">ML Kit OCR</span>
           <span class="tag tag-mobile">100% On-Device</span>
@@ -70,6 +71,7 @@
         <a href="#overview" class="subnav-link">Overview</a>
         <a href="#architecture" class="subnav-link">Architecture</a>
         <a href="#tradeoffs" class="subnav-link">Design &amp; Trade-offs</a>
+        <a href="#testing" class="subnav-link">Testing</a>
         <a href="#screenshots" class="subnav-link">Screenshots</a>
         <a href="#roadmap" class="subnav-link">What's Next</a>
       </div>
@@ -94,11 +96,18 @@
               switchable by tapping or swiping the mode bar.
             </p>
             <p>
-              Recent work has focused specifically on <strong>accessibility</strong>: proper
-              <code>accessibilityLabel</code>s across every icon-only control, live-region announcements for
-              state changes in Voice mode, and a new set of app-navigation tools that let a user open the
-              guide, switch models, or start a new session by voice alone — so the whole app is operable
-              without seeing or touching the screen.
+              Recent work has focused specifically on <strong>accessibility</strong>: an
+              <strong>Auto Voice Mode</strong> (on by default) that switches to Voice, announces "Assistant
+              is ready", and opens the mic on its own the moment the model loads; a continuously-listening
+              mic that no longer times out waiting for the user to start talking; proper
+              <code>accessibilityLabel</code>s across every icon-only control; and app-navigation tools that
+              let a user open the guide, switch models, or start a new session by voice alone.
+            </p>
+            <p>
+              Two opt-in toggles round it out: <strong>Smart Agent Mode</strong>, which hands every
+              tool-call decision to the model (gated to models above 2.5B params), and an in-app
+              <strong>agent test suite</strong> that fires 49 curated prompts through the real agent loop on
+              the device to catch silent tool-call misses.
             </p>
           </div>
           <div class="about-stats reveal">
@@ -166,9 +175,15 @@
             sections, three flows (<code>send_message</code>, <code>delete_event</code>,
             <code>delete_document</code>) are fully hardcoded two-step sequences with no LLM involved in tool
             selection, and everything else falls through to a standard loop of generate → parse tool call →
-            execute → append result → repeat. Several tools — contact lookup, calendar listing, SMS reads —
-            skip the LLM for the <strong>final answer</strong> entirely and return pre-formatted data, to
-            eliminate hallucination risk on facts the code already has correct.
+            execute → append result → repeat. Several tools — contact lookup, calendar listing, the ten app
+            navigation tools — skip the LLM for the <strong>final answer</strong> entirely and return
+            pre-formatted data, to eliminate hallucination risk on facts the code already has correct.
+          </p>
+          <p>
+            <strong>Smart Agent Mode</strong> is the deliberate escape hatch from all of that: an opt-in
+            toggle, gated to models above 2.5B parameters and re-validated on every screen mount, that skips
+            the deterministic dispatch entirely and lets the model make every tool-call decision itself —
+            trading the reliability guarantees for generalization on models judged capable enough.
           </p>
         </div>
 
@@ -187,24 +202,31 @@
         <div class="arch-block reveal">
           <h3><span class="arch-icon">🎙️</span> Voice &amp; OCR</h3>
           <p>
-            Voice mode runs STT → agent loop → TTS with auto-resume listening after the reply finishes, a
-            Skip button that interrupts speech and immediately re-listens, and side buttons for document
-            attach / OCR scan so a voice-only user never has to switch modes to reach those features. OCR
-            (ML Kit) results are routed through a structured-extraction prompt that adapts its output —
-            line items for a receipt, labelled fields for a business card, cleaned text otherwise.
+            Voice mode runs STT → agent loop → TTS. Because both platforms' built-in silence detection is
+            inconsistent, <code>ChatScreen</code> runs its <strong>own</strong>: streamed interim
+            transcripts re-arm a 2-second timer, and the app calls <code>stop()</code> itself when it fires.
+            Silence <em>before</em> any speech never arms the timer, so the mic just keeps listening — it
+            auto-restarts on every silence-driven end and only goes truly idle on an explicit tap. Four refs
+            coordinate the restart logic without depending on React state, which lags a render behind the
+            async STT callbacks. A Skip button interrupts speech and re-listens immediately; side buttons
+            put document attach / OCR scan within reach without a mode switch. OCR (ML Kit) results route
+            through a structured-extraction prompt — line items for a receipt, labelled fields for a
+            business card, cleaned text otherwise.
           </p>
         </div>
 
         <div class="arch-block reveal">
           <h3><span class="arch-icon">♿</span> Accessibility work</h3>
           <p>
-            Every icon-only control across all four screens now carries a real
-            <code>accessibilityLabel</code>/<code>accessibilityRole</code> instead of reading silently to a
-            screen reader. The Voice-mode status text uses <code>accessibilityLiveRegion="polite"</code> so
-            state changes announce themselves. Ten new App Navigation &amp; Info tools put every menu action —
-            opening the guide, switching models, starting a new session — behind a spoken command, and all
-            ten bypass the LLM for both tool selection and the final answer, since navigating a screen has
-            exactly one correct outcome.
+            <strong>Auto Voice Mode</strong> (on by default) means a user who can't see the screen never
+            has to find the mic: a one-shot effect watches <code>llm.isReady</code>, switches to Voice,
+            speaks "Assistant is ready", and opens the mic — with a guard against the LLM
+            unload/reload cycle around image generation re-triggering it. Every icon-only control across all
+            four screens carries a real <code>accessibilityLabel</code>/<code>accessibilityRole</code>; the
+            Voice-mode status text uses <code>accessibilityLiveRegion="polite"</code>; and ten App
+            Navigation &amp; Info tools put every menu action behind a spoken command, all bypassing the LLM
+            for both tool selection and the final answer. A tools-used chip row under every agent reply
+            makes a skipped or failed tool call visible in the UI, not just the logs.
           </p>
         </div>
       </div>
@@ -323,12 +345,70 @@
             </div>
           </div>
 
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">A mic that never times out vs. a fixed listen window</span>
+              <span class="tradeoff-tag">Accessibility</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Voice mode keeps the mic open indefinitely until the user explicitly taps it off — the
+                  app runs its own silence detection that only arms <em>after</em> speech starts, and
+                  auto-restarts the recognizer on every silence-driven stop. For a hands-free user, a
+                  mid-thought cutoff is a hard failure with no easy recovery.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  Coordinating restart-vs-stop across async STT callbacks needs four refs mirroring state
+                  the handlers can't read in time — noticeably more moving parts than trusting the
+                  platform's built-in endpointer would have been.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Testing ────────────────────────────────────────────────── -->
+    <section id="testing" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Testing</div>
+        <h2 class="section-title reveal">Catching the silent tool-call miss</h2>
+        <p class="section-subtitle reveal">
+          The failure mode that matters most on a small on-device model is subtle: it skips a tool call and
+          answers from an unverified guess instead — "Yes, you're connected to Wi-Fi" without ever checking.
+        </p>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧪</span> In-app agent test suite</h3>
+          <p>
+            Reached from the menu, the suite fires <strong>49 curated prompts</strong> across
+            device / calendar / alarms / contacts / documents / app-navigation / edge categories through the
+            real <code>runAgentTurn()</code> pipeline, against whichever model is loaded, on the actual
+            device. Each case has an expected tool (or <code>'none'</code>) graded as the <strong>hard</strong>
+            signal — because prose output from a small model is too unreliable to grade on its own — plus
+            optional soft content checks. It writes a JSON + Markdown report and streams tagged lines to
+            <code>logcat</code>.
+          </p>
+          <p>
+            Three real device runs went <strong>33/34 → 38/42 → 44/47</strong>, reaching 100%
+            tool-selection accuracy by the third run. The document-search dispatch fix, the network-status
+            bypass, the deterministic write-clipboard / brightness / volume expansion, and a "how are you?"
+            small-talk misrouting fix were all built and regression-tested against it — though two of those
+            were user-reported from real usage first, a reminder that broad coverage still isn't exhaustive.
+          </p>
         </div>
       </div>
     </section>
 
     <!-- ── Screenshots ────────────────────────────────────────────── -->
-    <section id="screenshots" class="section section-alt">
+    <section id="screenshots" class="section">
       <div class="container">
         <div class="section-label reveal">Screenshots</div>
         <h2 class="section-title reveal">Inside the app</h2>
@@ -359,7 +439,7 @@
     </section>
 
     <!-- ── Roadmap ────────────────────────────────────────────────── -->
-    <section id="roadmap" class="section">
+    <section id="roadmap" class="section section-alt">
       <div class="container">
         <div class="section-label reveal">What's Next</div>
         <h2 class="section-title reveal">Built with, not just for</h2>

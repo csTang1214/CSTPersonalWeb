@@ -99,9 +99,11 @@
             <p>
               My most recent project, <strong>Pocket Romance</strong> — an offline, on-device AI companion app —
               started life as a Unity prototype before I rebuilt it in React Native for real on-device LLM and
-              voice performance. It's now in closed testing on Google Play, targeting a full release before
-              September 2026. Alongside it, I've been improving <strong>MAIA</strong>'s accessibility, adding a
-              genuinely hands-free voice mode for visually impaired users.
+              voice performance. It's now in closed testing on Google Play with a player-selectable model,
+              on-device safety gating, and a reward system, and is being prepared for full public release.
+              Alongside it, I've been improving <strong>MAIA</strong>'s accessibility — a hands-free Auto Voice
+              Mode for visually impaired users — and building an in-app agent test suite to keep its
+              on-device tool-calling reliable.
             </p>
             <p>
               I'm preparing for the <strong>AWS Certified Developer – Associate</strong> certification and plan to
@@ -209,18 +211,20 @@
               <h3 class="project-title">ClinicCS</h3>
               <p class="project-subtitle">Full-Stack Conversational AI Clinic Management System</p>
               <p class="project-desc">
-                Patients interact with a chatbot to book, reschedule, and cancel appointments through
-                <strong>natural language</strong>. Powered by a two-model LLM architecture: a fast 8B classifier
-                routes intent, then a 70B model handles generation with RAG-backed clinic information.
-                Dynamic UI components (date pickers, slot pickers) inject inline into the chat thread.
+                Patients book, reschedule, and cancel appointments in <strong>natural language</strong>, and
+                ask about hours, billing, prescriptions, and emergencies — answered by a
+                <strong>hybrid RAG pipeline</strong>: dense vector search and Postgres full-text fused with
+                reciprocal rank fusion, then reranked by a local cross-encoder. A fast 8B model classifies
+                intent; a 70B model generates grounded answers. Backed by a full retrieval + LLM-judge
+                evaluation harness.
               </p>
               <div class="tech-tags">
                 <span class="tag tag-frontend">React 19</span>
                 <span class="tag tag-frontend">TypeScript</span>
-                <span class="tag tag-frontend">TanStack Query</span>
                 <span class="tag tag-backend">Node.js / Express</span>
-                <span class="tag tag-ai">LangChain / LangGraph</span>
-                <span class="tag tag-ai">RAG + pgvector</span>
+                <span class="tag tag-ai">Hybrid Search (RRF)</span>
+                <span class="tag tag-ai">Cross-Encoder Rerank</span>
+                <span class="tag tag-ai">pgvector + HNSW</span>
                 <span class="tag tag-ai">Groq API</span>
                 <span class="tag tag-backend">PostgreSQL</span>
                 <span class="tag tag-backend">Redis</span>
@@ -228,16 +232,16 @@
               </div>
               <div class="project-highlights">
                 <div class="highlight">
-                  <span class="highlight-icon">🤖</span>
-                  <span>Two-model architecture: 8B classifier + 70B generator</span>
+                  <span class="highlight-icon">🔎</span>
+                  <span>Hybrid retrieval: dense + lexical, RRF-fused, cross-encoder reranked</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">📊</span>
+                  <span>Eval harness: Hit@5 0.74 → 1.00, faithfulness 0.77 → 0.89</span>
                 </div>
                 <div class="highlight">
                   <span class="highlight-icon">🔒</span>
-                  <span>JWT auth, bcrypt (12 rounds), Helmet, rate limiting</span>
-                </div>
-                <div class="highlight">
-                  <span class="highlight-icon">🔄</span>
-                  <span>Three-layer fallback chain for graceful degradation</span>
+                  <span>JWT auth, bcrypt, Helmet, rate limiting, abstains on unanswerable queries</span>
                 </div>
               </div>
             </div>
@@ -250,7 +254,10 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 Live Demo
               </a>
-              <!-- <a href="https://github.com/YOUR_USERNAME/cliniccs" class="btn btn-ghost" target="_blank" rel="noopener">GitHub</a> -->
+              <a href="cliniccs.html" class="btn btn-ghost">
+                Learn More
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
+              </a>
             </div>
           </article>
 
@@ -268,8 +275,9 @@
               <p class="project-desc">
                 Every feature — LLM inference, speech recognition, document search, OCR, and image generation —
                 runs <strong>100% locally</strong> on the device. No user data is ever sent to a server.
-                Supports 9 on-device models (135M–4B params), a hands-free voice mode built for
-                <strong>accessibility</strong>, and a BM25 document vault for personal knowledge retrieval.
+                Supports 9 on-device models (135M–4B params), an <strong>Auto Voice Mode</strong> that goes
+                hands-free from launch for <strong>accessibility</strong>, an opt-in Smart Agent Mode for
+                capable models, and a BM25 document vault for personal knowledge retrieval.
               </p>
               <div class="tech-tags">
                 <span class="tag tag-mobile">React Native (Expo)</span>
@@ -288,11 +296,11 @@
                 </div>
                 <div class="highlight">
                   <span class="highlight-icon">🗣️</span>
-                  <span>Voice mode: STT → agent loop → TTS with auto-resume</span>
+                  <span>Auto Voice Mode + continuous listening — hands-free from app launch</span>
                 </div>
                 <div class="highlight">
-                  <span class="highlight-icon">📚</span>
-                  <span>Document vault with TF-IDF semantic search across PDFs</span>
+                  <span class="highlight-icon">🧪</span>
+                  <span>In-app agent test suite — 49 prompts, 100% tool-selection accuracy by run 3</span>
                 </div>
               </div>
             </div>
@@ -322,13 +330,14 @@
               <p class="project-desc">
                 A fully offline AI companion app — customisable characters with persistent memory,
                 emotional voice, and 2D animation, all running <strong>100% on-device</strong>. Rebuilt from
-                a Unity prototype into React Native for real on-device LLM and voice performance. In closed
-                testing on Google Play, targeting release before September 2026.
+                a Unity prototype into React Native for real on-device LLM and voice performance. Now with a
+                player-selectable model, an on-device age gate and content-safety net, and an 8-hour gift
+                reward system. In closed testing on Google Play, preparing for full public release.
               </p>
               <div class="tech-tags">
                 <span class="tag tag-mobile">React Native (Expo)</span>
                 <span class="tag tag-ai">llama.cpp</span>
-                <span class="tag tag-ai">Fine-tuned Qwen3.5-0.8B</span>
+                <span class="tag tag-ai">4 Fine-tuned SLMs (270M–1.5B)</span>
                 <span class="tag tag-ai">Piper TTS</span>
                 <span class="tag tag-ai">LoRA Fine-tuning</span>
                 <span class="tag tag-mobile">Android</span>
@@ -340,11 +349,11 @@
                 </div>
                 <div class="highlight">
                   <span class="highlight-icon">🧠</span>
-                  <span>Custom synthetic-data pipeline fine-tunes the on-device companion LLM</span>
+                  <span>4 selectable fine-tunes from a custom synthetic-data + LoRA pipeline</span>
                 </div>
                 <div class="highlight">
-                  <span class="highlight-icon">🎚️</span>
-                  <span>User-configurable voice quality/speed trade-off, tuned per character</span>
+                  <span class="highlight-icon">🛡️</span>
+                  <span>On-device age gate + keyword content-safety net, no server involved</span>
                 </div>
               </div>
             </div>
@@ -421,7 +430,7 @@
                 </div>
                 <div class="feature-item">
                   <span class="feature-dot feature-dot-active"></span>
-                  <span><strong>Full public release</strong> on Google Play, targeted before September 2026</span>
+                  <span><strong>Full public release</strong> on Google Play — moving from closed testing toward launch</span>
                 </div>
               </div>
             </div>

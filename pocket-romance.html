@@ -42,8 +42,9 @@
           An offline, on-device AI companion for Android — customisable characters with persistent
           memory, emotional voice, and 2D animation, all running locally on the phone with no server backend.
           Originally prototyped in Unity as a text-only concept; rebuilt from the ground up in React Native
-          once the design called for real on-device LLM + voice inference. Currently in closed testing on
-          Google Play, targeting a full public release before September 2026.
+          once the design called for real on-device LLM + voice inference. Now with a player-selectable model
+          across four fine-tuned candidates, an on-device age gate and content-safety net, and an 8-hour
+          gift reward system. Currently in closed testing on Google Play, preparing for full public release.
         </p>
         <div class="project-hero-ctas reveal">
           <button class="btn btn-demo" onclick="openModal('DemoVideos/PocketRomance/PocketRomanceDemoVideo.mp4', 'Pocket Romance Demo', 'Recorded on a budget Redmi A5 for a worst-case demo of on-device performance — inference and voice are noticeably faster on mid-range and flagship phones.')">
@@ -60,9 +61,10 @@
         <div class="project-hero-meta reveal">
           <span class="tag tag-mobile">React Native (Expo)</span>
           <span class="tag tag-ai">llama.cpp (llama.rn)</span>
-          <span class="tag tag-ai">Fine-tuned Qwen3.5-0.8B</span>
+          <span class="tag tag-ai">4 Fine-tuned SLMs (270M–1.5B)</span>
           <span class="tag tag-ai">Piper TTS</span>
           <span class="tag tag-ai">Moonshine STT</span>
+          <span class="tag tag-ai">On-Device Age Gate</span>
           <span class="tag tag-mobile">100% On-Device</span>
         </div>
         <p class="callout reveal" style="max-width:640px;">
@@ -106,15 +108,18 @@
               relationship score that shifts how the character talks to the player over time.
             </p>
             <p>
-              The project ships with a fine-tuned small language model (via a custom synthetic-data
-              pipeline) and 12 emotion-specific TTS voices (trained per-emotion on top of Piper/VITS) —
-              both built as sibling projects that feed into the app rather than generic off-the-shelf models.
+              The player picks from <strong>four fine-tuned candidate models</strong> (Gemma3-270M,
+              SmolLM2-360M, Qwen3.5-0.8B by default, Qwen2.5-1.5B), each built via a custom synthetic-data
+              pipeline, alongside 12 emotion-specific TTS voices trained per-emotion on top of Piper/VITS —
+              all sibling projects that feed the app rather than generic off-the-shelf models. Recent work
+              also added a Play-Store-review-driven safety layer (age gate, content-safety net, AI
+              disclosure) and a claimable-gift reward system.
             </p>
           </div>
           <div class="about-stats reveal">
             <div class="stat-card">
-              <span class="stat-number gradient-text">0.8B</span>
-              <span class="stat-label">Fine-tuned LLM, fully on-device</span>
+              <span class="stat-number gradient-text">4</span>
+              <span class="stat-label">Selectable fine-tuned models, 270M–1.5B</span>
             </div>
             <div class="stat-card">
               <span class="stat-number gradient-text">12</span>
@@ -125,8 +130,8 @@
               <span class="stat-label">Character slots per player</span>
             </div>
             <div class="stat-card">
-              <span class="stat-number gradient-text">3</span>
-              <span class="stat-label">Repos: app, dataset gen, voice training</span>
+              <span class="stat-number gradient-text">4</span>
+              <span class="stat-label">Repos: app, dataset gen, voice training, legal site</span>
             </div>
           </div>
         </div>
@@ -178,18 +183,25 @@
         <div class="arch-block reveal">
           <h3><span class="arch-icon">🧠</span> LLM subsystem</h3>
           <p>
-            Inference runs through <code>llama.rn</code> (llama.cpp bindings) on CPU, running a
-            <strong>LoRA-fine-tuned Qwen3.5-0.8B</strong> GGUF model. The fine-tuning dataset is synthetic:
-            a separate pipeline uses a local Ollama model to play the user, the companion, and an
-            independent emotion-judge, generating thousands of tagged conversations through an
-            8-stage quality gate (format checks, tone matching, repetition and generic-filler detection,
-            then an LLM-as-judge pass as the final and most expensive check).
+            Inference runs through <code>llama.rn</code> (llama.cpp bindings) on CPU. The player chooses
+            from <strong>four LoRA-fine-tuned candidates</strong> — Gemma3-270M, SmolLM2-360M,
+            Qwen3.5-0.8B (default), Qwen2.5-1.5B — presented as small / tiny / medium / big rather than by
+            real name. All four share one fine-tune lineage (emotion + gadget-reaction behavior), and the
+            system prompt has <strong>two real templates</strong>, not a toggle: Chinese for the Qwen
+            models, English for Gemma3/SmolLM2, because the English models were fine-tuned on that exact
+            wording rather than a translation.
           </p>
           <p>
-            A sliding-window context strategy evicts the oldest turns once the conversation approaches the
+            The fine-tuning data is synthetic: a local Ollama teacher model plays the user, the companion,
+            and an independent LLM-judge, generating tagged conversations across 7 target emotions plus
+            gadget reactions, each through a quality gate that runs the cheap syntactic checks first and the
+            expensive LLM-as-judge semantic check last.
+          </p>
+          <p>
+            A sliding-window context strategy evicts the oldest turns as the conversation approaches the
             model's context limit, and generation is capped and interrupted if it detects a degenerate
-            repeated-phrase loop — a documented failure mode on small models that can otherwise run away
-            and OOM the device.
+            repeated-phrase loop — a documented small-model failure mode that can otherwise run away and OOM
+            the device.
           </p>
         </div>
 
@@ -223,12 +235,59 @@
           <h3><span class="arch-icon">🎭</span> Character rendering &amp; storage</h3>
           <p>
             Characters are layered 2D sprites (hair/outfit/head/eyes/mouth) composited and recolored live via
-            SVG tint filters rather than pre-baked art per color option. Mouth movement is split into
-            independently animated strips driven by <code>react-native-reanimated</code> worklets — plain
-            React Native <code>Animated</code> stalled under the JS-thread contention created by Piper's
-            chained synthesis promises. All game state (characters, facts, settings) is stored as plain
-            local JSON files rather than SQLite, matching the project's general preference for minimal
-            native dependencies.
+            SVG tint filters rather than pre-baked art per color option — 10+ personalities, 15 hair styles,
+            15 outfits, and customizable hair/eye colour, eye shape, and face shape. Mouth movement is split
+            into independently animated strips driven by <code>react-native-reanimated</code> worklets —
+            plain React Native <code>Animated</code> stalled under the JS-thread contention created by
+            Piper's chained synthesis promises.
+          </p>
+          <p>
+            Sprite art is no longer bundled: hair/outfit/hat PNGs download from a public Hugging Face
+            dataset repo on first launch, gated by a mandatory download screen before any character can
+            render. All game state — characters (each carrying its own voice-tuning override), extracted
+            facts, settings, the age-gate/terms flags, and the reward inventory — is stored as plain local
+            JSON files rather than SQLite, matching the project's preference for minimal native
+            dependencies.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🛡️</span> Safety, age gating &amp; disclosure</h3>
+          <p>
+            Companion / roleplay apps draw extra Play Store scrutiny around age-appropriateness, AI
+            disclosure, and explicit content, so the app added a set of gates — all self-attestation and
+            <strong>fully on-device</strong>, with no age-verification service. A one-time age gate asks for
+            a numeric age and hard-blocks (and exits) under 18, persisting only a boolean "passed" flag,
+            never the number. Non-human disclosure shows on character select and the loading screen. A
+            keyword-based <code>contentSafety</code> net runs each transcript for sexual content, self-harm
+            signals (with crisis-line info, and a session-end after repeated hits), and a 3-tier weighted
+            age-safety regex score that can force-end a session.
+          </p>
+          <p>
+            The age-safety check is now the <strong>only</strong> line of defense for that category: a
+            dedicated <code>&lt;UnderageAlert&gt;</code> signal tag was originally trained into the
+            fine-tune, then dropped from all four models after eval showed the fix for benign false
+            positives cost real adversarial-detection accuracy on every candidate. Enforcement moved
+            entirely to the deterministic app-side check.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🎁</span> Reward system</h3>
+          <p>
+            A free gift is claimable every 8 hours, presented as a slot-machine reel that decides the winner
+            first and then animates to a fixed position — the reel never decides anything live. Gift odds
+            are weighted by <code>1 / bonusScore</code>, so the cheapest gift is ~9× more likely than the
+            priciest.
+          </p>
+          <p>
+            Claim eligibility is the app's <strong>one deliberate exception</strong> to being fully offline:
+            comparing the device clock against a stored timestamp is trivially defeated by winding the
+            clock, so every eligibility check live-reads the current time from the HTTP <code>Date</code>
+            header of a <code>HEAD</code> request to <code>huggingface.co</code> — a host the app already
+            uses for model downloads. There is no fallback to <code>Date.now()</code>; offline simply means
+            the claim button is unavailable, and the stored <code>lastClaimAt</code> is always a
+            network-derived timestamp compared against another network-derived one.
           </p>
         </div>
       </div>
@@ -355,6 +414,35 @@
             </div>
           </div>
 
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">A trained safety tag vs. a deterministic check</span>
+              <span class="tradeoff-tag">Age-safety</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  The fine-tune was originally trained to emit a dedicated <code>&lt;UnderageAlert&gt;</code>
+                  tag and force-end the session on any minor-roleplay attempt. Evaluation across all four
+                  candidate models showed an unavoidable precision/recall trade-off — teaching the model to
+                  stop firing on benign chat measurably cut real adversarial-detection accuracy, worst on
+                  the smallest models. So the training was <strong>dropped</strong> and enforcement moved to
+                  a deterministic, model-independent regex score in the app.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  A keyword/regex check only catches what the player actually typed or said, with none of a
+                  model's contextual understanding — but it's predictable, auditable, and identical
+                  regardless of which of the four models the player picked, which the trained behavior was
+                  not.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -399,9 +487,9 @@
         <div class="arch-block reveal">
           <ul>
             <li>Push Piper voice and LLM reply quality further without regressing response latency on budget devices</li>
-            <li>Expand character content — more personalities, voices, and relationship scenarios</li>
+            <li>Expand character content — more personalities, voices, outfits, and relationship scenarios; a second character body is not yet in</li>
             <li>Improve the RAG/memory pipeline — better recall without sacrificing the precision the current design prioritizes</li>
-            <li>Full public Play Store release, targeted before September 2026</li>
+            <li>Move from closed testing to full public Play Store release</li>
           </ul>
         </div>
       </div>

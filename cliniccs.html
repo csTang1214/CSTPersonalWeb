@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinicCS — Conversational AI Clinic Platform | Chung Sum Tang</title>
+  <meta name="description" content="ClinicCS: a full-stack conversational AI clinic system. Architecture, design decisions, and the hybrid retrieval + rerank + evaluation work behind its RAG pipeline.">
+  <meta property="og:title" content="ClinicCS — Conversational AI Clinic Platform">
+  <meta property="og:description" content="Book appointments and ask clinic questions in natural language — grounded by a hybrid dense + lexical RAG pipeline with cross-encoder reranking and a full LLM-judge eval harness.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="--accent-color:#0891b2; --accent-glow:rgba(8,145,178,0.2);">
+
+  <!-- ── Navigation ─────────────────────────────────────────────── -->
+  <nav class="nav detail-nav" id="nav">
+    <div class="nav-container">
+      <a href="index.html#projects" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+        Back to portfolio
+      </a>
+      <a href="index.html" class="nav-logo">CST</a>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <section class="project-hero">
+      <div class="container">
+        <div class="project-hero-top reveal">
+          <div class="project-hero-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <span class="project-status status-live">Deployed · Vercel + Render</span>
+        </div>
+        <h1 class="reveal">ClinicCS</h1>
+        <p class="project-hero-tagline reveal">
+          A full-stack conversational AI platform for a clinic: patients book, reschedule, and cancel
+          appointments in natural language, and ask about hours, services, billing, prescriptions, and
+          emergencies — with every informational answer grounded in real clinic documents by a
+          <strong>hybrid retrieval pipeline</strong>. Recent work rebuilt that pipeline from dense-only
+          vector search into a fused dense + lexical retriever with cross-encoder reranking, and added a
+          full retrieval + LLM-judge <strong>evaluation harness</strong> to measure it.
+        </p>
+        <div class="project-hero-ctas reveal">
+          <button class="btn btn-demo" onclick="openModal('DemoVideos/ClinicCS/ClinicCSDemo.mp4', 'ClinicCS Demo', 'Shows RAG-powered address lookup, appointment cancellation flow, and new appointment booking — all through conversational chat.')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            Watch Demo
+          </button>
+          <a href="https://frontend-rho-bice-58.vercel.app/" class="btn btn-secondary" target="_blank" rel="noopener">Open Live Demo</a>
+          <a href="#architecture" class="btn btn-ghost">Read the Architecture</a>
+        </div>
+        <div class="project-hero-meta reveal">
+          <span class="tag tag-frontend">React 19 + Vite</span>
+          <span class="tag tag-backend">Express + TypeScript</span>
+          <span class="tag tag-ai">Groq LLMs</span>
+          <span class="tag tag-ai">Hybrid RAG (RRF)</span>
+          <span class="tag tag-ai">Cross-Encoder Rerank</span>
+          <span class="tag tag-backend">Postgres + pgvector</span>
+          <span class="tag tag-backend">Redis</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Sub-nav ────────────────────────────────────────────────── -->
+    <nav class="subnav">
+      <div class="container subnav-inner">
+        <a href="#overview" class="subnav-link">Overview</a>
+        <a href="#architecture" class="subnav-link">Architecture</a>
+        <a href="#retrieval" class="subnav-link">Retrieval Pipeline</a>
+        <a href="#tradeoffs" class="subnav-link">Design &amp; Trade-offs</a>
+        <a href="#eval" class="subnav-link">Evaluation</a>
+        <a href="#roadmap" class="subnav-link">What's Next</a>
+      </div>
+    </nav>
+
+    <!-- ── Overview ───────────────────────────────────────────────── -->
+    <section id="overview" class="section">
+      <div class="container">
+        <div class="section-label reveal">Overview</div>
+        <h2 class="section-title reveal">One chat thread, two very different jobs</h2>
+        <div class="about-grid">
+          <div class="about-text reveal">
+            <p>
+              ClinicCS puts a single conversational agent in front of two distinct workloads. One is
+              <strong>transactional</strong> — booking, rescheduling, and cancelling appointments — handled
+              by a per-intent phase state machine that drives inline UI components (date picker, service
+              picker, slot picker, confirmation) rendered directly in the chat thread. The other is
+              <strong>informational</strong> — questions about clinic policy, hours, services, billing,
+              insurance, prescriptions, and emergencies — answered by a retrieval-augmented generation
+              pipeline over a curated knowledge base.
+            </p>
+            <p>
+              Everything the agent needs to <em>answer</em> comes from just two places: Postgres (structured
+              appointment data plus the vector and lexical knowledge base) and Groq (generation). Embedding
+              and reranking run <strong>in-process</strong> as local Transformers.js models — there is no
+              external vector database and no third-party embedding API.
+            </p>
+            <p>
+              A fast 8B model classifies intent on every turn; only informational and transactional routing
+              decisions that clear a confidence bar reach the 70B generation model. Session state lives in
+              Redis with a 2-hour TTL and an in-memory fallback, so a single dev instance stays functional
+              with no Redis at all.
+            </p>
+          </div>
+          <div class="about-stats reveal">
+            <div class="stat-card">
+              <span class="stat-number gradient-text">3</span>
+              <span class="stat-label">Knowledge sources — policy, MedQuAD, MTSamples</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">2</span>
+              <span class="stat-label">Retrieval signals fused — dense + lexical</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">11</span>
+              <span class="stat-label">Classified intents (+ fallback)</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number gradient-text">0</span>
+              <span class="stat-label">External vector DBs — pgvector does it all</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Architecture ───────────────────────────────────────────── -->
+    <section id="architecture" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Architecture</div>
+        <h2 class="section-title reveal">Classify → route → ground → answer</h2>
+        <p class="section-subtitle reveal">
+          Every <code>POST /chat</code> turn is rate-limited, decoded for an optional user id, then run
+          through the agent: load session, classify, route, and either advance a transactional flow or
+          retrieve and generate a grounded answer.
+        </p>
+
+        <div class="pipeline reveal">
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">1. Session</div>
+            <div class="pipeline-step-title">Redis state</div>
+            <div class="pipeline-step-desc">Sticky intent, phase, collected fields, and the last 20 messages — loaded from Redis or an in-memory fallback.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">2. Classify</div>
+            <div class="pipeline-step-title">8B intent model</div>
+            <div class="pipeline-step-desc">Groq <code>llama-3.1-8b-instant</code> over the message + last 2 turns; keyword matcher as a fallback on any parse failure.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">3. Route</div>
+            <div class="pipeline-step-title">Transactional / RAG / direct</div>
+            <div class="pipeline-step-desc">Booking intents run a phase state machine; informational intents retrieve; ambiguous ones need confidence ≥ 0.8 to retrieve.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">4. Ground</div>
+            <div class="pipeline-step-title">Hybrid retrieve + rerank</div>
+            <div class="pipeline-step-desc">Dense + lexical search fused with RRF, reranked by a cross-encoder, packed to a token budget — or an explicit "no info" sentinel.</div>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="pipeline-step-label">5. Answer</div>
+            <div class="pipeline-step-title">70B generation</div>
+            <div class="pipeline-step-desc"><code>llama-3.3-70b-versatile</code> answers from context only; with no context it drops to temp 0 and a hard "do not invent" guard.</div>
+          </div>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧭</span> Intent classification &amp; routing</h3>
+          <p>
+            The classifier maps each message to one of 11 intents (booking, reschedule, cancellation,
+            clinic info, services, payment/billing, insurance, prescription/referral, feedback/complaint,
+            emergency, general inquiry) plus an <code>OTHER</code> catch-all. It sees the
+            <strong>last two conversation turns</strong> as context so a follow-up like "and on Saturday?"
+            inherits the topic instead of being re-guessed as a fresh booking. A <strong>sticky-intent</strong>
+            rule keeps a multi-step booking in its transactional flow even when a mid-flow message would
+            classify differently on its own.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">📅</span> Transactional flow</h3>
+          <p>
+            Each transactional intent is a phase state machine — <code>collecting → date_selection →
+            service_selection → slot_selection → awaiting_confirmation → complete</code>. Every phase emits
+            an <code>action</code> that the SPA renders as an inline component, and the component's
+            selection is POSTed back as the next message. Available services and slot times are read from
+            the database (active doctors' specialties, RAG-parsed clinic hours with hard-coded fallbacks),
+            availability is checked against existing rows before a slot picker is shown, and reschedule /
+            cancel look the appointment up by id <strong>and</strong> <code>patient_id</code> so a patient
+            can't touch someone else's booking.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🔎</span> Informational flow</h3>
+          <p>
+            Once the caller has decided a turn needs the knowledge base, the agent
+            <strong>retrieves directly</strong> rather than through a forced LLM tool call — one fewer round
+            trip and no dependence on the model choosing to call a tool. A single generation pass then runs:
+            with context, the system prompt says to answer using <em>only</em> the clinic information
+            provided and to name no phone / email / address that isn't in it; with no context, temperature
+            drops to 0 and an explicit guard forbids inventing facts, hours, prices, or policies. Follow-ups
+            re-retrieve — only bare acknowledgements ("thanks", "ok") skip RAG and reuse the cached context.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Retrieval pipeline ─────────────────────────────────────── -->
+    <section id="retrieval" class="section">
+      <div class="container">
+        <div class="section-label reveal">Retrieval Pipeline</div>
+        <h2 class="section-title reveal">Dense and lexical, fused in one SQL round trip</h2>
+        <p class="section-subtitle reveal">
+          The corpus is three sources — 19 hand-authored clinic-policy markdown files, NIH patient Q&amp;A
+          (MedQuAD), and transcribed clinical notes (MTSamples) — chunked heading-aware to ~320 tokens and
+          stored once in a single <code>clinic_documents</code> table.
+        </p>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧱</span> Schema &amp; indexes</h3>
+          <p>
+            One table carries the chunk text, a <code>vector(384)</code> embedding
+            (<code>bge-small-en-v1.5</code>, cosine), and a generated <code>tsvector</code> over title +
+            content. Three index types back it: an <strong>HNSW</strong> index
+            (<code>m=16, ef_construction=64</code>) for dense ANN, a <strong>GIN</strong> index for lexical
+            full-text, and btree indexes for section / source / doc filters. The migration aborts if
+            pgvector is older than 0.5, since HNSW is required.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">⚗️</span> Hybrid search + fusion</h3>
+          <p>
+            A query is embedded once (<code>bge-small</code> with an instruction prefix, Redis-cached), then
+            a single SQL round trip runs both a <strong>dense</strong> branch
+            (<code>embedding &lt;=&gt; qv</code> ordered, <code>hnsw.ef_search=80</code>) and a
+            <strong>sparse</strong> branch (<code>ts_rank_cd</code> over
+            <code>websearch_to_tsquery</code>). The two ranked lists are combined with
+            <strong>Reciprocal Rank Fusion</strong> (<code>Σ 1 / (60 + rank)</code>) — no score
+            normalization needed. A <strong>soft</strong> section pre-filter narrows to the intent-mapped
+            section(s) but falls back to a global search and merges if the filtered result is weak.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🎯</span> Rerank &amp; context build</h3>
+          <p>
+            The ~30 fused candidates are scored by a local <strong>cross-encoder</strong>
+            (<code>ms-marco-MiniLM-L-6-v2</code>) as <code>[query, passage]</code> pairs and cut to the top
+            5; if reranking is disabled or errors, the pipeline degrades to RRF order. <code>buildContext()</code>
+            then drops near-duplicate adjacent chunks and greedily fills a ~1200-token budget, prefixing each
+            chunk with a provenance header, or emits the exact
+            <code>"No relevant information found in the clinic database."</code> sentinel that the agent
+            checks for to abstain.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🛡️</span> Grounding safeguards</h3>
+          <p>
+            Follow-ups always re-retrieve so an answer is never given from stale context; the classifier
+            gets the last two turns so follow-ups aren't misrouted; a soft filter plus a minimum-RRF score
+            gate routes genuinely unanswerable questions to the sentinel; an empty knowledge base forces
+            temp 0 and a "do not invent" system message; the prompt forbids stating contact details not in
+            context; and <code>EMERGENCY</code> is forced into the always-retrieve set so it's never handled
+            from model memory alone.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Trade-offs ─────────────────────────────────────────────── -->
+    <section id="tradeoffs" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">Design Decisions</div>
+        <h2 class="section-title reveal">Trade-offs behind the system</h2>
+        <p class="section-subtitle reveal">
+          Most of these are retrieval-quality-vs-latency or self-contained-vs-flexible calls, made with
+          eval numbers rather than intuition where possible.
+        </p>
+
+        <div class="tradeoff-grid">
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Hybrid retrieval + rerank vs. dense-only</span>
+              <span class="tradeoff-tag">Retrieval quality</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  The original retriever was pure dense vector search. Fusing it with Postgres full-text via
+                  RRF and adding a cross-encoder rerank took Hit@5 from <strong>0.74 to 1.00</strong> and
+                  drove the unanswerable false-retrieval rate from <strong>1.00 to 0.00</strong> on the
+                  33-question gold set — a lexical signal catches the exact-keyword policy questions that
+                  embeddings alone were missing.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  The cross-encoder adds roughly <strong>800&nbsp;ms of p95 latency</strong> for only a
+                  small MRR gain over RRF alone on the current corpus, so it stays behind a
+                  <code>RAG_RERANK</code> flag to be re-evaluated as the knowledge base grows.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">In-process models vs. external services</span>
+              <span class="tradeoff-tag">Infrastructure</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Embedding and reranking run as local Transformers.js models inside the Express process,
+                  and both dense and lexical search are just pgvector and Postgres full-text. No external
+                  vector DB, no embedding API, no per-query third-party cost — the whole retrieval stack is
+                  one Postgres instance plus the app.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  First boot downloads ~120&nbsp;MB of model weights, and the cross-encoder runs on CPU in
+                  the request path — acceptable for this scale, but not something that scales to heavy
+                  concurrent load without a dedicated inference service.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Retrieve directly vs. forced tool call</span>
+              <span class="tradeoff-tag">Agent design</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Once a heuristic decides a turn is informational, the agent calls the retriever itself
+                  rather than prompting the LLM to emit a tool call. It's model-agnostic and saves a full
+                  generation round trip on every informational turn.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  The gate is a heuristic, not the model's own judgment — on a vague opening message the
+                  agent still occasionally volunteers semi-grounded specifics instead of asking a
+                  clarifying question first.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Abstain with a sentinel vs. always answer</span>
+              <span class="tradeoff-tag">Safety</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  When retrieval comes back weak, the pipeline emits a fixed sentinel string and the agent
+                  says it doesn't have that information and points to the clinic — rather than letting a 70B
+                  model fill the gap. Agent-eval abstention correctness rose from
+                  <strong>0.75 to 0.95</strong> after the grounding fixes.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  A strict score gate means the system will sometimes decline a question that the corpus
+                  actually could have answered if phrased differently — a deliberate lean toward "say less,
+                  correctly."
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Evaluation ─────────────────────────────────────────────── -->
+    <section id="eval" class="section">
+      <div class="container">
+        <div class="section-label reveal">Evaluation</div>
+        <h2 class="section-title reveal">Measured, not assumed</h2>
+        <p class="section-subtitle reveal">
+          Two eval layers run at different cadences — cheap deterministic retrieval metrics on every
+          retriever change, and an LLM-as-judge generation pass before releases — plus an agent-level
+          harness that drives the real agent and scores RAG as it actually uses it.
+        </p>
+
+        <div class="spec-table-wrap reveal">
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Retrieval metric (n = 33 gold set)</th>
+                <th>Legacy dense-only</th>
+                <th>Hybrid + RRF</th>
+                <th>Hybrid + rerank</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="spec-strong">Hit@5</td><td>0.74</td><td>1.00</td><td>1.00</td></tr>
+              <tr><td class="spec-strong">Recall@10</td><td>0.70</td><td>0.96</td><td>0.96</td></tr>
+              <tr><td class="spec-strong">MRR@10</td><td>0.74</td><td>0.96</td><td>0.98</td></tr>
+              <tr><td class="spec-strong">Unanswerable false-retrieval</td><td>1.00</td><td>0.00</td><td>0.00</td></tr>
+              <tr><td class="spec-strong">Total p95 latency</td><td>77 ms</td><td>285 ms</td><td>1109 ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧪</span> Agent-level eval, before → after grounding fixes</h3>
+          <ul>
+            <li>RAG fire-rate on answerable questions — 0.82 → <strong>0.89</strong></li>
+            <li>Faithfulness (LLM-judge) — 0.77 → <strong>0.89</strong></li>
+            <li>Answer correctness vs. reference — 0.68 → <strong>0.80</strong></li>
+            <li>Abstention correctness on unanswerable questions — 0.75 → <strong>0.95</strong></li>
+            <li>Multi-turn conversation pass rate — 2/5 → <strong>4/5</strong></li>
+          </ul>
+          <p>
+            These runs used a <code>gpt-oss</code> Groq model because the test keys lacked Llama access;
+            production runs <code>llama-3.3-70b-versatile</code>, and at n&nbsp;=&nbsp;33 the numbers are
+            high-variance — the direction of movement is what matters. Retrieval metrics feed a suggested CI
+            gate (fail on Recall@10 &lt; 0.85, MRR@10 &lt; 0.60, unanswerable false-retrieval &gt; 0.15, or
+            p95 &gt; 1500&nbsp;ms).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Roadmap ────────────────────────────────────────────────── -->
+    <section id="roadmap" class="section section-alt">
+      <div class="container">
+        <div class="section-label reveal">What's Next</div>
+        <h2 class="section-title reveal">Known limitations, honestly tracked</h2>
+        <div class="arch-block reveal">
+          <ul>
+            <li>The intent → section pre-filter is marginal — a ~50–70% global-fallback rate on the current corpus suggests dropping the hand-written map for a learned router</li>
+            <li>Rerank cost is high for its gain at this corpus size — keep it behind a flag and re-benchmark as the knowledge base grows</li>
+            <li>Legacy pre-migration rows (old MiniLM embeddings) still live in the table — harmless but worth deleting once confident</li>
+            <li>The gold set is small (n ≈ 33) — expand it with held-out MedQuAD and real production failure cases</li>
+            <li>Vague-opener behaviour — make the agent ask a clarifying question instead of volunteering semi-grounded specifics</li>
+            <li>Migration and ingestion are still manual runbook steps, not automated on deploy</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-text">
+        Chung Sum Tang &mdash; <a href="index.html" style="color:inherit;text-decoration:underline;">Back to portfolio</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ── Video Modal ────────────────────────────────────────────── -->
+  <div id="videoModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container">
+      <button class="modal-close" id="modalClose" aria-label="Close video">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <video id="modalVideo" class="modal-video" controls preload="metadata">
+        <source id="modalVideoSrc" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+      <div class="modal-info">
+        <h3 id="modalTitle" class="modal-title"></h3>
+        <p id="modalDesc" class="modal-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
