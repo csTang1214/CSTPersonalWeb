@@ -101,9 +101,10 @@
               started life as a Unity prototype before I rebuilt it in React Native for real on-device LLM and
               voice performance. It's now in closed testing on Google Play with a player-selectable model,
               on-device safety gating, and a reward system, and is being prepared for full public release.
-              Alongside it, I've been improving <strong>MAIA</strong>'s accessibility — a hands-free Auto Voice
-              Mode for visually impaired users — and building an in-app agent test suite to keep its
-              on-device tool-calling reliable.
+              Alongside it, I've been improving <strong>MAIA</strong> — a hands-free Auto Voice Mode for
+              visually impaired users, an in-app agent test suite, and its own <strong>fine-tuned
+              tool-calling model</strong> (a LoRA fine-tune of Qwen2.5-1.5B, evaluated at ~90% on a 361-case
+              held-out set) to keep on-device tool-calling reliable.
             </p>
             <p>
               I'm preparing for the <strong>AWS Certified Developer – Associate</strong> certification and plan to
@@ -275,14 +276,17 @@
               <p class="project-desc">
                 Every feature — LLM inference, speech recognition, document search, OCR, and image generation —
                 runs <strong>100% locally</strong> on the device. No user data is ever sent to a server.
-                Supports 9 on-device models (135M–4B params), an <strong>Auto Voice Mode</strong> that goes
-                hands-free from launch for <strong>accessibility</strong>, an opt-in Smart Agent Mode for
-                capable models, and a BM25 document vault for personal knowledge retrieval.
+                Supports 10 on-device models (135M–4B params), including its own <strong>fine-tuned
+                tool-calling model</strong>, an <strong>Auto Voice Mode</strong> that goes hands-free from
+                launch for <strong>accessibility</strong>, an opt-in Smart Agent Mode for capable models, and a
+                BM25 document vault for personal knowledge retrieval.
               </p>
               <div class="tech-tags">
                 <span class="tag tag-mobile">React Native (Expo)</span>
                 <span class="tag tag-mobile">TypeScript</span>
                 <span class="tag tag-ai">ExecuTorch</span>
+                <span class="tag tag-ai">llama.rn</span>
+                <span class="tag tag-ai">LoRA Fine-tuning</span>
                 <span class="tag tag-ai">Stable Diffusion</span>
                 <span class="tag tag-ai">TF-IDF / BM25</span>
                 <span class="tag tag-ai">ML Kit OCR</span>
@@ -292,7 +296,11 @@
               <div class="project-highlights">
                 <div class="highlight">
                   <span class="highlight-icon">🔇</span>
-                  <span>9 on-device models — zero server calls, full privacy</span>
+                  <span>10 on-device models — zero server calls, full privacy</span>
+                </div>
+                <div class="highlight">
+                  <span class="highlight-icon">🧬</span>
+                  <span>Own fine-tuned 1.5B tool-calling model — 90% on a 361-case eval, 92% on-device suite</span>
                 </div>
                 <div class="highlight">
                   <span class="highlight-icon">🗣️</span>
@@ -442,6 +450,10 @@
                 <div class="feature-item">
                   <span class="feature-dot feature-dot-active"></span>
                   <span><strong>Survey the visually impaired community</strong> on how MAIA fits their daily workflow</span>
+                </div>
+                <div class="feature-item">
+                  <span class="feature-dot"></span>
+                  <span><strong>Speed up the fine-tuned model</strong> — GPU offload and a shorter tool manifest to cut the ~2 min first reply</span>
                 </div>
                 <div class="feature-item">
                   <span class="feature-dot"></span>

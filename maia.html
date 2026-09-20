@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MAIA — Fully On-Device Mobile AI Assistant | Chung Sum Tang</title>
-  <meta name="description" content="MAIA: a fully on-device AI assistant for Android built for accessibility. Architecture, design decisions, and trade-offs behind the agent, RAG vault, and voice systems.">
+  <meta name="description" content="MAIA: a fully on-device AI assistant for Android built for accessibility, with its own fine-tuned tool-calling model. Architecture, design decisions, and trade-offs behind the agent, RAG vault, and voice systems.">
   <meta property="og:title" content="MAIA — Fully On-Device Mobile AI Assistant">
-  <meta property="og:description" content="On-device LLM assistant with a hands-free voice mode, document vault, and OCR — built with real accessibility work for visually impaired users.">
+  <meta property="og:description" content="On-device LLM assistant with a fine-tuned tool-calling model, a hands-free voice mode, document vault, and OCR — built with real accessibility work for visually impaired users.">
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,9 +41,10 @@
         <p class="project-hero-tagline reveal">
           A fully on-device AI assistant for Android — LLM inference, speech recognition, document
           search, OCR, and image generation all run locally, with no request ever leaving the phone.
-          Built with an agent/tool architecture that lets an on-device model reliably control the device,
-          and with a growing focus on <strong>accessibility</strong> — a genuinely hands-free voice mode
-          built for users who can't rely on the screen.
+          Built with an agent/tool architecture that lets an on-device model reliably control the device —
+          including <strong>MAIA's own fine-tuned 1.5B tool-calling model</strong> — and with a growing focus
+          on <strong>accessibility</strong>: a genuinely hands-free voice mode built for users who can't rely
+          on the screen.
         </p>
         <div class="project-hero-ctas reveal">
           <button class="btn btn-demo" onclick="openModal('DemoVideos/MAIA/MAIADemo.mp4', 'MAIA Demo', 'Demonstrates image generation, battery check, calendar event creation, and document Q&amp;A — all running fully on-device.')">
@@ -56,7 +57,9 @@
         <div class="project-hero-meta reveal">
           <span class="tag tag-mobile">React Native (Expo)</span>
           <span class="tag tag-ai">ExecuTorch</span>
-          <span class="tag tag-ai">9 On-Device Models</span>
+          <span class="tag tag-ai">llama.rn</span>
+          <span class="tag tag-ai">Fine-tuned Qwen2.5 (LoRA)</span>
+          <span class="tag tag-ai">10 On-Device Models</span>
           <span class="tag tag-ai">Auto Voice Mode</span>
           <span class="tag tag-ai">BM25 / TF-IDF</span>
           <span class="tag tag-ai">ML Kit OCR</span>
@@ -85,8 +88,9 @@
         <div class="about-grid">
           <div class="about-text reveal">
             <p>
-              MAIA gives the user a choice of 9 on-device language models (135M–4B parameters), each
-              running fully locally via ExecuTorch, and wraps them in an <strong>agent system</strong> with
+              MAIA gives the user a choice of 10 on-device language models (135M–4B parameters) — nine
+              running fully locally via ExecuTorch, plus <strong>MAIA's own fine-tuned tool-calling
+              model</strong> running via llama.rn — and wraps them in an <strong>agent system</strong> with
               35 tools spanning calendar, alarms, contacts, device control, image generation, and a
               document vault — all without a backend server or telemetry endpoint.
             </p>
@@ -104,10 +108,13 @@
               let a user open the guide, switch models, or start a new session by voice alone.
             </p>
             <p>
-              Two opt-in toggles round it out: <strong>Smart Agent Mode</strong>, which hands every
-              tool-call decision to the model (gated to models above 2.5B params), and an in-app
-              <strong>agent test suite</strong> that fires 49 curated prompts through the real agent loop on
-              the device to catch silent tool-call misses.
+              The newest piece is <strong>MAIA's Tool-Calling Model</strong>: a LoRA fine-tune of
+              Qwen2.5-1.5B-Instruct, trained on synthetic data covering all 35 tools and published on
+              Hugging Face. At 0.94&nbsp;GB (Q4_K_M) it's small enough for a phone, and it's trained to pick
+              tools from the full manifest itself — so it unlocks <strong>Smart Agent Mode</strong>, which
+              hands every tool-call decision to the model, despite being below the 2.5B-parameter size gate
+              the other models need. An in-app <strong>agent test suite</strong> fires 49 curated prompts
+              through the real agent loop on the device to catch silent tool-call misses.
             </p>
           </div>
           <div class="about-stats reveal">
@@ -116,7 +123,7 @@
               <span class="stat-label">Agent-callable tools</span>
             </div>
             <div class="stat-card">
-              <span class="stat-number gradient-text">9</span>
+              <span class="stat-number gradient-text">10</span>
               <span class="stat-label">Selectable on-device models</span>
             </div>
             <div class="stat-card">
@@ -181,9 +188,34 @@
           </p>
           <p>
             <strong>Smart Agent Mode</strong> is the deliberate escape hatch from all of that: an opt-in
-            toggle, gated to models above 2.5B parameters and re-validated on every screen mount, that skips
-            the deterministic dispatch entirely and lets the model make every tool-call decision itself —
-            trading the reliability guarantees for generalization on models judged capable enough.
+            toggle that skips the deterministic dispatch entirely and lets the model make every tool-call
+            decision itself — trading the reliability guarantees for generalization on models judged capable
+            enough. It's gated to models above 2.5B parameters <em>or</em> to a model fine-tuned specifically
+            for full tool selection, and re-validated on every screen mount so the setting can't carry over
+            to an ineligible model. A <strong>destructive-action guard</strong> backs it up: before a
+            <code>delete_event</code>, <code>delete_document</code>, or <code>send_message</code> runs, the
+            loop checks that the id or number the model wants to use actually appeared in a prior real tool
+            result — otherwise it forces the lookup first instead of acting on an invented reference.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">🧬</span> Fine-tuned tool-calling model &amp; second runtime</h3>
+          <p>
+            <strong>MAIA's Tool-Calling Model</strong> is a LoRA fine-tune of Qwen2.5-1.5B-Instruct trained on
+            synthetic tool-calling data for all 35 tools. The <code>Q4_K_M</code> GGUF (0.94&nbsp;GB) is what
+            the app downloads; the F16 GGUF and merged weights are published for desktop use. Because
+            ExecuTorch has no path for a custom GGUF, this model runs on a second runtime,
+            <strong>llama.rn</strong>, CPU-only at <code>temperature: 0</code>, behind a hook that mirrors
+            the ExecuTorch one — so the chat screen treats both identically.
+          </p>
+          <p>
+            Fine-tuned for one specific prompt shape, it gets that shape exactly: the agent swaps the
+            category-gated prompt for a byte-for-byte port of the <strong>full 35-tool manifest</strong> it
+            was trained against, with the timestamp moved to the end so llama.rn can reuse its KV cache
+            across turns. It answers general-knowledge-style questions directly unless the user names their
+            documents, so document and app-info questions are still routed through the vault search first —
+            the one place the deterministic layer is kept, and only for this model.
           </p>
         </div>
 
@@ -247,14 +279,15 @@
           <div class="tradeoff-card reveal">
             <div class="tradeoff-head">
               <span class="tradeoff-title">Model speed vs. quality — exposed to the user</span>
-              <span class="tradeoff-tag">9 models, 135M–4B</span>
+              <span class="tradeoff-tag">10 models, 135M–4B</span>
             </div>
             <div class="tradeoff-body">
               <div class="tradeoff-col tradeoff-col-gain">
                 <div class="tradeoff-col-label">The decision</div>
                 <p>
                   Rather than picking one model for everyone, MAIA ships a picker with star ratings for
-                  speed and quality per model, from a 135M SmolLM up to a 4B Phi-4 Mini, with a 1.2B LFM 2.5
+                  speed and quality per model, from a 135M SmolLM up to a 4B Phi-4 Mini plus its own
+                  fine-tuned 1.5B tool-calling model, with a 1.2B LFM 2.5
                   marked <strong>Recommended</strong> as the balance point. Device capability varies wildly
                   across Android hardware, so the right trade-off is different for every user.
                 </p>
@@ -371,6 +404,33 @@
             </div>
           </div>
 
+          <div class="tradeoff-card reveal">
+            <div class="tradeoff-head">
+              <span class="tradeoff-title">Fine-tune the model vs. keep engineering around it</span>
+              <span class="tradeoff-tag">Tool calling</span>
+            </div>
+            <div class="tradeoff-body">
+              <div class="tradeoff-col tradeoff-col-gain">
+                <div class="tradeoff-col-label">The decision</div>
+                <p>
+                  Deterministic bypasses only recognize the phrasings their regexes were written for. Instead
+                  of writing more of them, MAIA fine-tuned a 1.5B model to choose from all 35 tools itself,
+                  and hands it every tool-call decision in Smart Agent Mode — with a guard that refuses to
+                  delete or message on an id it made up, and vault routing kept for document questions.
+                </p>
+              </div>
+              <div class="tradeoff-col tradeoff-col-cost">
+                <div class="tradeoff-col-label">The cost</div>
+                <p>
+                  The ~2,000-token manifest prefills at roughly 15 tokens/s on a budget CPU, so the first
+                  reply after launch takes about two minutes, and its 3,072-token context leaves little room
+                  for long chats. It's also weakest on hard negatives — sometimes calling a tool on plain
+                  chit-chat — which is exactly why the guard exists.
+                </p>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -402,6 +462,72 @@
             bypass, the deterministic write-clipboard / brightness / volume expansion, and a "how are you?"
             small-talk misrouting fix were all built and regression-tested against it — though two of those
             were user-reported from real usage first, a reminder that broad coverage still isn't exhaustive.
+          </p>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">📱</span> Testing the fine-tuned model on a real phone</h3>
+          <p>
+            The same suite ran the tool-calling model on a budget Unisoc T606 phone (CPU-only, Smart Agent Mode
+            on). Five runs took it from <strong>24/48 to 44/48 (92%)</strong>, and the average time per case
+            from 148&nbsp;s to about 30–36&nbsp;s. Each jump had a specific cause:
+          </p>
+          <ul>
+            <li><strong>24/48 → 34/48:</strong> the first run was a test-harness bug, not the model — it invented tool names because it was shown a manifest it was never trained on. Feeding it the full 35-tool prompt fixed that.</li>
+            <li><strong>148 s → ~30 s per case:</strong> the timestamp near the top of the prompt changed every minute, invalidating llama.rn's KV-prefix cache and re-paying the ~2 minute prefill on every case. Moving it to the end made the manifest a cache hit.</li>
+            <li><strong>69% → 92%:</strong> the model answered vault-content questions ("What grind size for espresso?") from its own knowledge. Routing document and app-info questions through the vault search first closed the gap.</li>
+          </ul>
+        </div>
+
+        <div class="arch-block reveal">
+          <h3><span class="arch-icon">📊</span> Desktop eval — 361 held-out cases</h3>
+          <p>
+            Separately, a desktop harness sends 361 held-out prompts to the model at temperature 0 with the
+            exact training prompt and grades tool choice and arguments in isolation — no device, no
+            deterministic dispatch. Targeted gap-fill data (clarifying questions, cold-start delete
+            prerequisites) lifted the model without costing accuracy elsewhere.
+          </p>
+        </div>
+
+        <div class="spec-table-wrap reveal">
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Model build</th>
+                <th>Overall</th>
+                <th>Clarify (10)</th>
+                <th>Prerequisite (11)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Original fine-tune, F16</td>
+                <td>308/361 (85.3%)</td>
+                <td>2/10</td>
+                <td>2/11</td>
+              </tr>
+              <tr>
+                <td>Retrained with gap-fill data, F16</td>
+                <td class="spec-strong">325/361 (90.0%)</td>
+                <td class="spec-strong">10/10</td>
+                <td class="spec-strong">7/11</td>
+              </tr>
+              <tr>
+                <td>Shipped Q4_K_M GGUF, app's prompt layout</td>
+                <td class="spec-strong">328/361 (90.9%)</td>
+                <td class="spec-strong">10/10</td>
+                <td class="spec-strong">5/11</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="arch-block reveal">
+          <p>
+            Quantizing to Q4_K_M cost under one point of accuracy. The known weak spots are documented rather
+            than hidden: hard-negative <code>no_tool</code> cases (a spurious tool call on chit-chat,
+            roughly 77–80%), cold-start deletes that still sometimes invent an id, and BM25's inability to
+            match a query to a passage worded differently — deliberately probed by cases in the suite.
           </p>
         </div>
       </div>
@@ -446,9 +572,10 @@
         <div class="arch-block reveal">
           <p>
             The next phase of MAIA is less about new features and more about validating the accessibility
-            work directly with the people it's meant to serve.
+            work directly with the people it's meant to serve — and making the fine-tuned model faster.
           </p>
           <ul>
+            <li>Cut the ~2 minute first-reply delay of the tool-calling model — GPU/OpenCL offload, a shorter tool manifest, or a prompt-prefix cache persisted across launches</li>
             <li>Survey the visually impaired community on how MAIA fits (or doesn't) into their daily workflow</li>
             <li>Tailor the app's design and feature priorities to that feedback, rather than assumptions</li>
             <li>Continue deepening accessibility — hands-free coverage, screen-reader behavior, and voice-first flows</li>
